@@ -1,0 +1,12 @@
+﻿<UserControl x:Class="BankingSystem.UI.Views.TransactionsView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <DockPanel>
+            <ToolBar DockPanel.Dock="Top">
+                <Button Content="Load" Command="{Binding LoadCommand}" />
+                <Button Content="Add Transaction" Command="{Binding AddTransactionCommand}" />
+            </ToolBar>
+
+            <DataGrid ItemsSource="{Binding Transactions}" AutoGenerateColumns="True" />
+        </DockPanel>
+    </Grid>
+</UserControl>

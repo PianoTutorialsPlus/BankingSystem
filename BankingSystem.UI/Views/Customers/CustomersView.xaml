@@ -1,0 +1,13 @@
+﻿<UserControl x:Class="BankingSystem.UI.Views.CustomersView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <DockPanel>
+            <ToolBar DockPanel.Dock="Top">
+                <Button Content="Load" Command="{Binding LoadCommand}" />
+                <Button Content="Save" Command="{Binding SaveCommand}" />
+            </ToolBar>
+
+            <DataGrid ItemsSource="{Binding CustomersView}" AutoGenerateColumns="True" CanUserAddRows="True" />
+        </DockPanel>
+    </Grid>
+</UserControl>
+

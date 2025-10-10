@@ -1,15 +1,48 @@
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using BankingSystem.Persistence;
+using BankingSystem.Persistence.Repositories;
+using BankingSystem.Persistence.Services;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Use Autofac
+builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
 
+// Configuration
+var conn = builder.Configuration.GetConnectionString("Default") ?? "Data Source=banking.db";
+var checksumSecret = builder.Configuration["ChecksumSecret"] ?? "dev-secret";
+
+// Add services to DI
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// EF Core
+builder.Services.AddDbContext<BankingDbContext>(opts => opts.UseSqlite(conn));
+
+builder.Host.ConfigureContainer<ContainerBuilder>(container =>
+{
+    // Repositories
+    container.RegisterGeneric(typeof(GenericRepository<>)).As(typeof(BankingSystem.Application.Interfaces.IRepository<>)).InstancePerLifetimeScope();
+
+    // App services
+    container.RegisterType<HmacChecksumService>().As<BankingSystem.Application.Interfaces.IChecksumService>().WithParameter("secret", checksumSecret).SingleInstance();
+    container.RegisterType<AccountService>().SingleInstance();
+
+    // You may register other handlers here...
+});
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Migrate/Ensure DB
+using (var sc = app.Services.CreateScope())
+{
+    var db = sc.ServiceProvider.GetRequiredService<BankingDbContext>();
+    db.Database.EnsureCreated();
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -17,9 +50,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();
