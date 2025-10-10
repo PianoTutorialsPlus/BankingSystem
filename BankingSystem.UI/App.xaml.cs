@@ -7,7 +7,7 @@ using System.Windows;
 
 namespace BankingSystem.UI;
 
-public partial class App : Application
+public partial class App : System.Windows.Application
 {
     private IContainer? _container;
 

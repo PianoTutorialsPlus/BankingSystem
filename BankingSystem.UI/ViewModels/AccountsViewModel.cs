@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using BankingSystem.Application.DTOs;
+using BankingSystem.UI.Models;
 
 namespace BankingSystem.UI.ViewModels;
 
