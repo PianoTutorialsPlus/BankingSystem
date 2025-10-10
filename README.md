@@ -53,3 +53,9 @@ Use the following:
 
 Second: Full repo scaffold (all files, ready to copy)
 
+## Open tasks
+- Some code are not implemented (Commands, Queries, Handlers etc)
+- Tests are not implemented
+- The DI system is not separated
+- The Database is not set up, no migrations were run
+- CI is not implemented
