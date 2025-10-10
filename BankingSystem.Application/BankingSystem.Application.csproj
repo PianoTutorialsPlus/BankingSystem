@@ -12,9 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Commands\" />
     <Folder Include="Common\" />
-    <Folder Include="Handlers\" />
     <Folder Include="Queries\" />
   </ItemGroup>
 
