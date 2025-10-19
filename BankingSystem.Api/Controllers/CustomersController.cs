@@ -1,7 +1,8 @@
-﻿using BankingSystem.Application.DTOs;
-using BankingSystem.Persistence;
+﻿using BankingSystem.Application.Features.Customers.Commands.CreateCustomer;
+using BankingSystem.Application.Features.Customers.Queries.GetAllCustomers;
+using BankingSystem.Application.Features.Customers.Queries.GetCustomerDetails;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace BankingSystem.Api.Controllers;
 
@@ -9,96 +10,37 @@ namespace BankingSystem.Api.Controllers;
 [Route("api/[controller]")]
 public class CustomersController : ControllerBase
 {
-    private readonly BankingDbContext _ctx;
-    public CustomersController(BankingDbContext ctx) { _ctx = ctx; }
+    private readonly IMediator mediator;
+
+    public CustomersController(IMediator mediator)
+    {
+        this.mediator = mediator;
+    }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<ActionResult<List<CustomerDto>>> Get()
     {
-        var list = await _ctx.Customers.AsNoTracking().ToListAsync();
-        var dtos = list.Select(c => new CustomerDto
-        {
-            Id = c.Id,
-            FirstName = c.FirstName,
-            LastName = c.LastName,
-            Street = c.Street,
-            HouseNumber = c.HouseNumber,
-            ZipCode = c.ZipCode,
-            City = c.City,
-            PhoneNumber = c.PhoneNumber,
-            EmailAddress = c.EmailAddress
-        }).ToList();
+        var customers = await mediator.Send(new GetAllCustomersQuery());
 
-        return Ok(dtos);
+        return Ok(customers);
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> Get(int id)
+    public async Task<ActionResult<CustomerDto>> Get(int id)
     {
-        var c = await _ctx.Customers.FindAsync(id);
-        if (c == null) return NotFound();
-        var dto = new CustomerDto
-        {
-            Id = c.Id,
-            FirstName = c.FirstName,
-            LastName = c.LastName,
-            Street = c.Street,
-            HouseNumber = c.HouseNumber,
-            ZipCode = c.ZipCode,
-            City = c.City,
-            PhoneNumber = c.PhoneNumber,
-            EmailAddress = c.EmailAddress
-        };
-        return Ok(dto);
+        var customer = await mediator.Send(new GetCustomerDetailsQuery(id));
+
+        return Ok(customer);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CustomerDto dto)
+    [ProducesResponseType(201)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Post(CreateCustomerCommand customer)
     {
-        var c = new Domain.Entities.Customer
-        {
-            FirstName = dto.FirstName,
-            LastName = dto.LastName,
-            Street = dto.Street,
-            HouseNumber = dto.HouseNumber,
-            ZipCode = dto.ZipCode,
-            City = dto.City,
-            PhoneNumber = dto.PhoneNumber,
-            EmailAddress = dto.EmailAddress,
-            CreatedAt = DateTime.UtcNow
-        };
-
-        await _ctx.Customers.AddAsync(c);
-        await _ctx.SaveChangesAsync();
-        return CreatedAtAction(nameof(Get), new { id = c.Id }, c);
-    }
-
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] CustomerDto dto)
-    {
-        var c = await _ctx.Customers.FindAsync(id);
-        if (c == null) return NotFound();
-        c.FirstName = dto.FirstName;
-        c.LastName = dto.LastName;
-        c.Street = dto.Street;
-        c.HouseNumber = dto.HouseNumber;
-        c.ZipCode = dto.ZipCode;
-        c.City = dto.City;
-        c.PhoneNumber = dto.PhoneNumber;
-        c.EmailAddress = dto.EmailAddress;
-        _ctx.Customers.Update(c);
-        await _ctx.SaveChangesAsync();
-        return NoContent();
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        var c = await _ctx.Customers.FindAsync(id);
-        if (c == null) return NotFound();
-        _ctx.Customers.Remove(c);
-        await _ctx.SaveChangesAsync();
-        return NoContent();
+        var response = await mediator.Send(customer);
+        return CreatedAtAction(nameof(Get), new { id = response });
     }
 }
 

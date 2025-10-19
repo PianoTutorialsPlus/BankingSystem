@@ -1,6 +1,6 @@
-﻿namespace BankingSystem.UI.Models;
+﻿namespace BankingSystem.UI.Models.Customer;
 
-public class CreateCustomerRequest
+public class CustomerVM : AbstractDtoValidationBase 
 {
     public string FirstName { get; set; } = "";
     public string LastName { get; set; } = "";

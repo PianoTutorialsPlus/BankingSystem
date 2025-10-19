@@ -1,9 +1,8 @@
-﻿using BankingSystem.Domain.Common;
+﻿namespace BankingSystem.Application.Features.Customers.Queries.GetAllCustomers;
 
-namespace BankingSystem.Domain.Entities;
-
-public class Customer : BaseEntity
+public class CustomerDto
 {
+    public int Id { get; set; }
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public string Street { get; set; } = string.Empty;
@@ -12,6 +11,4 @@ public class Customer : BaseEntity
     public string City { get; set; } = string.Empty;
     public string PhoneNumber { get; set; } = string.Empty;
     public string EmailAddress { get; set; } = string.Empty;
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public ICollection<Account> Accounts { get; set; } = new List<Account>();
 }

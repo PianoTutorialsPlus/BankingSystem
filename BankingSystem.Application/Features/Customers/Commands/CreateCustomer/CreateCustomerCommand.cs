@@ -1,8 +1,9 @@
-﻿namespace BankingSystem.Application.DTOs;
+﻿using MediatR;
 
-public class CustomerDto
+namespace BankingSystem.Application.Features.Customers.Commands.CreateCustomer;
+
+public class CreateCustomerCommand : IRequest<int>
 {
-    public int Id { get; set; }
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public string Street { get; set; } = string.Empty;

@@ -1,4 +1,5 @@
 ﻿using BankingSystem.UI.Navigation;
+using BankingSystem.UI.ViewModels.Customers;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
@@ -7,31 +8,31 @@ namespace BankingSystem.UI.ViewModels;
 
 public class ShellMainViewModel : INotifyPropertyChanged
 {
-    private readonly INavigationService _nav;
+    private readonly INavigationService navigationService;
 
-    public ShellMainViewModel(INavigationService nav)
+    public ShellMainViewModel(INavigationService navigationService)
     {
-        _nav = nav;
-        NavigateCustomersCommand = new RelayCommand(_ => Navigate("Customers"));
-        NavigateAccountsCommand = new RelayCommand(_ => Navigate("Accounts"));
-        NavigateTransactionsCommand = new RelayCommand(_ => Navigate("Transactions"));
+        this.navigationService = navigationService;
+        NavigateCustomersCommand = new RelayCommand(_ => NavigateTo<CustomersViewModel>());
+        NavigateAccountsCommand = new RelayCommand(_ => NavigateTo<AccountsViewModel>());
+        NavigateTransactionsCommand = new RelayCommand(_ => NavigateTo<TransactionsViewModel>());
 
         // start view:
-        CurrentView = _nav.GetViewFor("Customers");
+        CurrentViewModel = this.navigationService.Get<CustomersViewModel>();
     }
 
     private object? _currentView;
-    public object? CurrentView { get => _currentView; set { _currentView = value; OnPropertyChanged(); } }
+    public object? CurrentViewModel { get => _currentView; set { _currentView = value; OnPropertyChanged(); } }
+
+    private void NavigateTo<TViewModel>() where TViewModel : class
+    {
+        var view = navigationService.Get<TViewModel>();
+        if (view != null) CurrentViewModel = view;
+    }
 
     public ICommand NavigateCustomersCommand { get; }
     public ICommand NavigateAccountsCommand { get; }
     public ICommand NavigateTransactionsCommand { get; }
-
-    private void Navigate(string key)
-    {
-        var view = _nav.GetViewFor(key);
-        if (view != null) CurrentView = view;
-    }
 
     public event PropertyChangedEventHandler? PropertyChanged;
     protected void OnPropertyChanged([CallerMemberName] string? p = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(p));

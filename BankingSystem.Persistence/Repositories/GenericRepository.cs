@@ -1,22 +1,45 @@
-﻿using BankingSystem.Application.Interfaces;
+﻿using BankingSystem.Application.Contracts.Repository;
+using BankingSystem.Domain.Common;
+using BankingSystem.Persistence.DatabaseContext;
 using Microsoft.EntityFrameworkCore;
 
 namespace BankingSystem.Persistence.Repositories;
 
-public class GenericRepository<T> : IRepository<T> where T : class
+public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
 {
-    protected readonly BankingDbContext _ctx;
-    protected readonly DbSet<T> _db;
+    protected readonly BankingDbContext context;
 
-    public GenericRepository(BankingDbContext ctx)
+    public GenericRepository(BankingDbContext context)
     {
-        _ctx = ctx;
-        _db = ctx.Set<T>();
+        this.context = context;
     }
 
-    public async Task AddAsync(T entity, CancellationToken ct = default) => await _db.AddAsync(entity, ct);
-    public async Task<T?> GetByIdAsync(int id, CancellationToken ct = default) => await _db.FindAsync(new object[] { id }, ct) as T;
-    public void Remove(T entity) => _db.Remove(entity);
-    public void Update(T entity) => _db.Update(entity);
-    public async Task<List<T>> ListAsync(CancellationToken ct = default) => await _db.AsNoTracking().ToListAsync(ct);
+    public async Task CreateAsync(T entity)
+    {
+        await context.AddAsync(entity);
+        await context.SaveChangesAsync();
+    }
+
+    public async Task DeleteAsync(T entity)
+    {
+        context.Remove(entity);
+        await context.SaveChangesAsync();
+    }
+
+    public async Task<IReadOnlyList<T>> GetAsync()
+    {
+        return await context.Set<T>().AsNoTracking().ToListAsync();
+    }
+
+    public async Task<T> GetByIdAsync(int id)
+    {
+        return await context.Set<T>().AsNoTracking()
+            .FirstOrDefaultAsync(q => q.Id == id);
+    }
+
+    public async Task UpdateAsync(T entity)
+    {
+        context.Entry(entity).State = EntityState.Modified;
+        await context.SaveChangesAsync();
+    }
 }
