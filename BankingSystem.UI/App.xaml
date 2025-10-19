@@ -1,8 +1,15 @@
 ﻿<Application x:Class="BankingSystem.UI.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             Startup="Application_Startup">
+             xmlns:locators="clr-namespace:BankingSystem.UI.DI"
+             StartupUri="Views/ShellMainView.xaml">
     <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Views/Customers/CustomerTemplate.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <locators:ViewModelLocator x:Key="Locator"/>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>
 
