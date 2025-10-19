@@ -2,7 +2,7 @@
 
 public interface INavigationService
 {
-    void Register(string key, Func<object> viewFactory);
-    void NavigateTo(string key);
-    object? GetViewFor(string key);
+    void OpenWindow<TWindow>() where TWindow : class;
+    T Get<T>() where T : class;
+
 }

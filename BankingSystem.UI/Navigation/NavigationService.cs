@@ -1,20 +1,52 @@
-﻿using System.Collections.Concurrent;
+﻿using Autofac;
+using System.Collections.Concurrent;
+using System.Reflection;
+using System.Windows;
 
 namespace BankingSystem.UI.Navigation;
 
 public class NavigationService : INavigationService
 {
+    private readonly ILifetimeScope scope;
+    private readonly Assembly viewAssembly;
+    private readonly HashSet<Type> typesCache;
+
+    public NavigationService(ILifetimeScope scope)
+    {
+        this.scope = scope;
+        viewAssembly = typeof(App).Assembly;
+        typesCache = new HashSet<Type>(viewAssembly.GetTypes().Where(x => x.Name.EndsWith("View")));
+    }
+
+    private static readonly ConcurrentDictionary<Type, Type> viewCache = new();
+
     private readonly ConcurrentDictionary<string, Func<object>> _map = new();
     private string? _currentKey;
 
-    public void Register(string key, Func<object> viewFactory) => _map[key] = viewFactory;
-
-    public void NavigateTo(string key)
+    public void OpenWindow<T>() where T : class
     {
-        if (!_map.ContainsKey(key)) return;
-        _currentKey = key;
+        var viewModelType = typeof(T);
+        if (!viewCache.TryGetValue(viewModelType, out var viewType))
+        {
+            var namespac = viewModelType.Namespace;
+            var viewName = viewModelType.Name.Replace("ViewModel", "View");
+            viewType = typesCache.Where(x => x.Name == viewName).FirstOrDefault();
+
+            viewCache[viewModelType] = viewType!;
+        }
+
+        using var lifetimeScope = scope.BeginLifetimeScope();
+        var view = (Window)Activator.CreateInstance(viewType!)!;
+        var viewModel = lifetimeScope.Resolve<T>();
+
+        view.DataContext = viewModel;
+        view.ShowDialog();
     }
 
-    public object? GetViewFor(string key) => _map.TryGetValue(key, out var f) ? f() : null;
+    public T Get<T>() where T : class
+    {
+        using var lifetimeScope = scope.BeginLifetimeScope();
+        return lifetimeScope.Resolve<T>();
+    }
 }
 
