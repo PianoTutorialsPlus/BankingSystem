@@ -1,7 +1,7 @@
 ﻿using BankingSystem.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace BankingSystem.Persistence;
+namespace BankingSystem.Persistence.DatabaseContext;
 
 public class BankingDbContext : DbContext
 {
