@@ -1,4 +1,5 @@
 ﻿using BankingSystem.Application.Features.Customers.Commands.CreateCustomer;
+using BankingSystem.Application.Features.Customers.Commands.DeleteCustomer;
 using BankingSystem.Application.Features.Customers.Commands.UpdateCustomer;
 using BankingSystem.Application.Features.Customers.Queries.GetAllCustomers;
 using BankingSystem.Application.Features.Customers.Queries.GetCustomerDetails;
@@ -54,5 +55,14 @@ public class CustomersController : ControllerBase
         await mediator.Send(command);
         return NoContent();
     }
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Delete(int id)
+    {
+        await mediator.Send(new DeleteCustomerCommand { Id = id });
+        return NoContent();
+    }
+
 }
 

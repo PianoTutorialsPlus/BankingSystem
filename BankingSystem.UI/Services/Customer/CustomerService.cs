@@ -52,4 +52,16 @@ public class CustomerService : BaseHttpService, ICustomerService
         }
     }
 
+    public async Task<Response<Guid>> DeleteCustomer(int id)
+    {
+        try
+        {
+            await client.CustomersDELETEAsync(id);
+            return new Response<Guid>() { Success = true };
+        }
+        catch (ApiException ex)
+        {
+            return ConvertApiExceptions<Guid>(ex);
+        }
+    }
 }
