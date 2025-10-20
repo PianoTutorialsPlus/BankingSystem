@@ -1,6 +1,4 @@
-﻿using System.Windows.Xps;
-
-namespace BankingSystem.UI.Services.Base;
+﻿namespace BankingSystem.UI.Services.Base;
 
 public class BaseHttpService
 {

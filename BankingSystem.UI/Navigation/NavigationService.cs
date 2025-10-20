@@ -42,11 +42,32 @@ public class NavigationService : INavigationService
         view.DataContext = viewModel;
         view.ShowDialog();
     }
+    public void OpenWindow<TWindow, TParam>(TParam parameter) where TWindow : class
+    {
+        var viewModelType = typeof(TWindow);
+        if (!viewCache.TryGetValue(viewModelType, out var viewType))
+        {
+            var namespac = viewModelType.Namespace;
+            var viewName = viewModelType.Name.Replace("ViewModel", "View");
+            viewType = typesCache.Where(x => x.Name == viewName).FirstOrDefault();
+
+            viewCache[viewModelType] = viewType!;
+        }
+
+        using var lifetimeScope = scope.BeginLifetimeScope();
+
+        var view = (Window)Activator.CreateInstance(viewType!)!;
+        var viewModel = lifetimeScope.Resolve(viewModelType, new TypedParameter(typeof(TParam), parameter));
+
+        view.DataContext = viewModel;
+        view.ShowDialog();
+    }
 
     public T Get<T>() where T : class
     {
         using var lifetimeScope = scope.BeginLifetimeScope();
         return lifetimeScope.Resolve<T>();
     }
+
 }
 

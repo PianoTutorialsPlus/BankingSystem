@@ -5,6 +5,7 @@ using BankingSystem.Api.Middleware;
 using BankingSystem.Application.Contracts;
 using BankingSystem.Application.Contracts.Repository;
 using BankingSystem.Application.Features.Customers.Commands.CreateCustomer;
+using BankingSystem.Application.Interfaces;
 using BankingSystem.Persistence.DatabaseContext;
 using BankingSystem.Persistence.Repositories;
 using BankingSystem.Persistence.Services;

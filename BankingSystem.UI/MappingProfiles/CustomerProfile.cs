@@ -10,6 +10,7 @@ namespace BankingSystem.UI.MappingProfiles
         {
             CreateMap<CustomerDto, CustomerVM>().ReverseMap();
             CreateMap<CreateCustomerCommand, CustomerVM>().ReverseMap();
+            CreateMap<UpdateCustomerCommand, CustomerVM>().ReverseMap();
         }
     }
 }

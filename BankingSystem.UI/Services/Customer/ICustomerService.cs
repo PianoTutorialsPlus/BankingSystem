@@ -7,5 +7,6 @@ namespace BankingSystem.UI.Services.Customer
     {
         Task<List<CustomerVM>> GetCustomers();
         Task<Response<Guid>> CreateCustomer(CustomerVM customer);
+        Task<Response<Guid>> UpdateCustomer(CustomerVM customer);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using BankingSystem.Application.Features.Customers.Commands.CreateCustomer;
+using BankingSystem.Application.Features.Customers.Commands.UpdateCustomer;
 using BankingSystem.Application.Features.Customers.Queries.GetAllCustomers;
 using BankingSystem.Application.Features.Customers.Queries.GetCustomerDetails;
 using MediatR;
@@ -34,13 +35,24 @@ public class CustomersController : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(201)]
-    [ProducesResponseType(400)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Post(CreateCustomerCommand customer)
     {
         var response = await mediator.Send(customer);
         return CreatedAtAction(nameof(Get), new { id = response });
+    }
+
+    [HttpPut]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesDefaultResponseType]
+    public async Task<IActionResult> Put(UpdateCustomerCommand command)
+    {
+        await mediator.Send(command);
+        return NoContent();
     }
 }
 

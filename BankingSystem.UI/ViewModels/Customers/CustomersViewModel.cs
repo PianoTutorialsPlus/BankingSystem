@@ -16,6 +16,7 @@ public class CustomersViewModel : INotifyPropertyChanged
     public ObservableCollection<CustomerVM> Customers { get; } = new();
 
     public ICommand CreateCustomerCommand { get; }
+    public ICommand UpdateCustomerCommand { get; }
 
     public CustomersViewModel(ICustomerService customerService, INavigationService navigationService)
     {
@@ -23,9 +24,24 @@ public class CustomersViewModel : INotifyPropertyChanged
         this.navigationService = navigationService;
 
         CreateCustomerCommand = new RelayCommand(async _ => await CreateCustomerAsync());
+        UpdateCustomerCommand = new RelayCommand(async _ => await UpdateCustomerAsync(), _ => SelectedCustomer != null);
         _ = UpdateUI();
     }
 
+    private CustomerVM? selectedCustomer;
+    public CustomerVM? SelectedCustomer
+    {
+        get => selectedCustomer;
+        set
+        {
+            if (selectedCustomer != value)
+            {
+                selectedCustomer = value;
+                OnPropertyChanged();
+                ((RelayCommand)UpdateCustomerCommand).RaiseCanExecuteChanged();
+            }
+        }
+    }
     public async Task UpdateUI()
     {
         var customers = await customerService.GetCustomers();
@@ -34,9 +50,18 @@ public class CustomersViewModel : INotifyPropertyChanged
         foreach (var customer in customers) Customers.Add(customer);
 
         OnPropertyChanged(nameof(Customers));
+        SelectedCustomer = null;
+    }
+    private async Task UpdateCustomerAsync()
+    {
+        if (SelectedCustomer is null)
+            return;
+
+        navigationService.OpenWindow<UpdateCustomerViewModel, CustomerVM>(SelectedCustomer);
+        await UpdateUI();
     }
 
-    public async Task CreateCustomerAsync()
+    private async Task CreateCustomerAsync()
     {
         navigationService.OpenWindow<CreateCustomerViewModel>();
         await UpdateUI();

@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using AutoMapper.Contrib.Autofac.DependencyInjection;
+using BankingSystem.UI.Models.Customer;
 using BankingSystem.UI.Navigation;
 using BankingSystem.UI.Services;
 using BankingSystem.UI.Services.Base;
@@ -27,6 +28,7 @@ public class ViewModelLocator
 
         builder.RegisterType<Client>().As<IClient>().SingleInstance();
         builder.RegisterType<NavigationService>().As<INavigationService>().SingleInstance();
+        builder.RegisterType<CustomerVM>();
 
         // Views and ViewModels
         builder.RegisterType<ShellMainView>().AsSelf().SingleInstance();

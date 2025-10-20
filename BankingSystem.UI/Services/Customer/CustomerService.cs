@@ -13,6 +13,11 @@ public class CustomerService : BaseHttpService, ICustomerService
         this.mapper = mapper;
     }
 
+    public async Task<List<CustomerVM>> GetCustomers()
+    {
+        var customers = await client.CustomersAllAsync();
+        return mapper.Map<List<CustomerVM>>(customers);
+    }
     public async Task<Response<Guid>> CreateCustomer(CustomerVM customer)
     {
         try
@@ -32,10 +37,19 @@ public class CustomerService : BaseHttpService, ICustomerService
             return ConvertApiExceptions<Guid>(ex);
         }
     }
-
-    public async Task<List<CustomerVM>> GetCustomers()
+    public async Task<Response<Guid>> UpdateCustomer(CustomerVM customer)
     {
-        var customers = await client.CustomersAllAsync();
-        return mapper.Map<List<CustomerVM>>(customers);
+        try
+        {
+            var command = mapper.Map<UpdateCustomerCommand>(customer);
+            await client.CustomersPUTAsync(command);
+
+            return new Response<Guid>() { Success = true };
+        }
+        catch (ApiException ex)
+        {
+            return ConvertApiExceptions<Guid>(ex);
+        }
     }
+
 }
