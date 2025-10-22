@@ -6,6 +6,7 @@ using BankingSystem.Application.Contracts;
 using BankingSystem.Application.Contracts.Repository;
 using BankingSystem.Application.Features.Customers.Commands.CreateCustomer;
 using BankingSystem.Application.Interfaces;
+using BankingSystem.Infrastructure.Repositories;
 using BankingSystem.Persistence.DatabaseContext;
 using BankingSystem.Persistence.Repositories;
 using BankingSystem.Persistence.Services;
@@ -47,10 +48,10 @@ builder.Host.ConfigureContainer<ContainerBuilder>(container =>
 
     // App services
     container.RegisterType<HmacChecksumService>().As<IChecksumService>().WithParameter("secret", checksumSecret).SingleInstance();
-    container.RegisterType<AccountService>().SingleInstance();
 
     // You may register other handlers here...
     container.RegisterType<CustomerRepository>().As<ICustomerRepository>().SingleInstance();
+    container.RegisterType<AccountRepository>().As<IAccountRepository>().SingleInstance();
 });
 
 var app = builder.Build();

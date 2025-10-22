@@ -1,14 +1,13 @@
-﻿namespace BankingSystem.Domain.Entities;
+﻿using BankingSystem.Domain.Common;
 
-public class Account
+namespace BankingSystem.Domain.Entities;
+
+public class Account : BaseEntity
 {
-    public int Id { get; set; }
-    public string AccountNumber { get; set; } = string.Empty;
     public int CustomerId { get; set; }
-    public Customer? Customer { get; set; }
-    public decimal OpeningBalance { get; set; }
-    public decimal CurrentBalance { get; set; }
-    public string BalanceChecksum { get; set; } = string.Empty;
+    public Customer Customer { get; set; } = null!;
+    public string AccountNumber { get; set; } = string.Empty;
+    public decimal Balance { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
 }

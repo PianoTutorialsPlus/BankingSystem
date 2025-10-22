@@ -1,4 +1,5 @@
 ﻿using BankingSystem.UI.Navigation;
+using BankingSystem.UI.ViewModels.Accounts;
 using BankingSystem.UI.ViewModels.Customers;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -15,7 +16,7 @@ public class ShellMainViewModel : INotifyPropertyChanged
         this.navigationService = navigationService;
         NavigateCustomersCommand = new RelayCommand(_ => NavigateTo<CustomersViewModel>());
         NavigateAccountsCommand = new RelayCommand(_ => NavigateTo<AccountsViewModel>());
-        NavigateTransactionsCommand = new RelayCommand(_ => NavigateTo<TransactionsViewModel>());
+        //NavigateTransactionsCommand = new RelayCommand(_ => NavigateTo<TransactionsViewModel>());
 
         // start view:
         CurrentViewModel = this.navigationService.Get<CustomersViewModel>();

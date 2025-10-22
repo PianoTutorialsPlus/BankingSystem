@@ -1,13 +1,28 @@
-﻿<UserControl x:Class="BankingSystem.UI.Views.AccountsView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+﻿<UserControl x:Class="BankingSystem.UI.Views.AccountsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Grid>
         <DockPanel>
-            <ToolBar DockPanel.Dock="Top">
-                <Button Content="Load" Command="{Binding LoadCommand}" />
-                <Button Content="Create Account" Command="{Binding CreateAccountCommand}" />
-            </ToolBar>
+            <StackPanel Margin="20">
+                <TextBlock Text="Accounts" FontSize="20" FontWeight="Bold" Margin="0,0,0,10"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button Content="Create Account" Command="{Binding CreateAccountCommand}" Width="150" Margin="0,0,10,0"/>
+                    <Button Content="Delete Account" Command="{Binding DeleteAccountCommand}" Width="150"/>
+                </StackPanel>
 
-            <DataGrid ItemsSource="{Binding Accounts}" AutoGenerateColumns="True" />
+                <DataGrid ItemsSource="{Binding Accounts}"
+                          AutoGenerateColumns="False"
+                          SelectedItem="{Binding SelectedAccount, Mode=TwoWay}"
+                          Margin="0,10,0,0"
+                          IsReadOnly="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Account Number" Binding="{Binding AccountNumber}" />
+                        <DataGridTextColumn Header="Customer ID" Binding="{Binding CustomerId}" />
+                        <DataGridTextColumn Header="Balance" Binding="{Binding Balance, StringFormat=C}" />
+                        <DataGridTextColumn Header="Created At" Binding="{Binding CreatedAt, StringFormat=d}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </StackPanel>
         </DockPanel>
     </Grid>
 </UserControl>
-

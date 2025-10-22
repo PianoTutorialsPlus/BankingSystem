@@ -1,5 +1,4 @@
-﻿using BankingSystem.Application.Features.Customers.Commands.DeleteCustomer;
-using BankingSystem.UI.Models.Customer;
+﻿using BankingSystem.UI.Models.Customer;
 using BankingSystem.UI.Navigation;
 using BankingSystem.UI.Services.Customer;
 using System.Collections.ObjectModel;

@@ -11,5 +11,6 @@ public class CustomerVM : AbstractDtoValidationBase
     public string City { get; set; } = "";
     public string PhoneNumber { get; set; } = "";
     public string EmailAddress { get; set; } = "";
+    public string FullName => $"{FirstName} {LastName}";
 }
 

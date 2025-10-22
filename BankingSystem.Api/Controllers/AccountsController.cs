@@ -1,4 +1,11 @@
-﻿using BankingSystem.Persistence;
+﻿using BankingSystem.Application.Features.Accounts.Commands.CreateAccount;
+using BankingSystem.Application.Features.Accounts.Queries;
+using BankingSystem.Application.Features.Accounts.Queries.GetAccountDetails;
+using BankingSystem.Application.Features.Accounts.Queries.GetAllAccounts;
+using BankingSystem.Application.Features.Customers.Queries.GetAllCustomers;
+using BankingSystem.Application.Features.Customers.Queries.GetCustomerDetails;
+using BankingSystem.Domain.Entities;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BankingSystem.Api.Controllers;
@@ -7,50 +14,36 @@ namespace BankingSystem.Api.Controllers;
 [Route("api/[controller]")]
 public class AccountsController : ControllerBase
 {
-    private readonly BankingDbContext _ctx;
-    private readonly BankingSystem.Persistence.Services.AccountService _accService;
+    private readonly IMediator mediator;
 
-    public AccountsController(BankingDbContext ctx, BankingSystem.Persistence.Services.AccountService accService)
+    public AccountsController(IMediator mediator)
     {
-        _ctx = ctx;
-        _accService = accService;
+        this.mediator = mediator;
     }
 
-    [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateAccountRequest req)
+    [HttpGet]
+    public async Task<ActionResult<List<AccountDto>>> Get()
     {
-        var cust = await _ctx.Customers.FindAsync(req.CustomerId);
-        if (cust == null) return BadRequest("Customer not found");
-        var id = await _accService.CreateAccountAsync(req.CustomerId, req.OpeningBalance);
-        return CreatedAtAction(nameof(Get), new { id }, new { id });
+        var customers = await mediator.Send(new GetAllAccountsQuery());
+
+        return Ok(customers);
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> Get(int id)
+    public async Task<ActionResult<AccountDto>> Get(int id)
     {
-        var a = await _ctx.Accounts.FindAsync(id);
-        if (a == null) return NotFound();
-        return Ok(new { a.Id, a.AccountNumber, a.CustomerId, a.OpeningBalance, a.CurrentBalance });
+        var customer = await mediator.Send(new GetAccountDetailsQuery(id));
+
+        return Ok(customer);
     }
 
-    [HttpPost("{id}/transactions")]
-    public async Task<IActionResult> PostTransaction(int id, [FromBody] PerformTransactionRequest req)
+    [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Post(CreateAccountCommand account)
     {
-        var acc = await _ctx.Accounts.FindAsync(id);
-        if (acc == null) return NotFound("Account not found");
-
-        var txId = await _accService.PerformTransactionAsync(id, req.Date, req.Amount, req.Purpose, req.IBAN, req.TransactionNumber, (Domain.Enums.TransactionType)req.Type);
-        return Ok(new { id = txId });
-    }
-
-    [HttpPost("archiveTransaction/{txId}")]
-    public async Task<IActionResult> ArchiveTransaction(int txId)
-    {
-        await _accService.ArchiveTransactionAsync(txId);
-        return NoContent();
+        var response = await mediator.Send(account);
+        return CreatedAtAction(nameof(Get), new { id = response });
     }
 }
-
-public record CreateAccountRequest(int CustomerId, decimal OpeningBalance);
-public record PerformTransactionRequest(DateTime Date, decimal Amount, string Purpose, string IBAN, string TransactionNumber, int Type);
-

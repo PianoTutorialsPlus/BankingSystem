@@ -3,10 +3,10 @@ using AutoMapper.Contrib.Autofac.DependencyInjection;
 using BankingSystem.UI.Models.Customer;
 using BankingSystem.UI.Navigation;
 using BankingSystem.UI.Services;
+using BankingSystem.UI.Services.Account;
 using BankingSystem.UI.Services.Base;
 using BankingSystem.UI.Services.Customer;
 using BankingSystem.UI.ViewModels;
-using BankingSystem.UI.ViewModels.Customers;
 using BankingSystem.UI.Views;
 using System.Reflection;
 
@@ -23,8 +23,8 @@ public class ViewModelLocator
         builder.RegisterAutoMapper(Assembly.GetExecutingAssembly());
 
         // Services
-        builder.RegisterType<ApiService>().As<IApiService>().SingleInstance();
         builder.RegisterType<CustomerService>().As<ICustomerService>().SingleInstance();
+        builder.RegisterType<AccountService>().As<IAccountService>().SingleInstance();
 
         builder.RegisterType<Client>().As<IClient>().SingleInstance();
         builder.RegisterType<NavigationService>().As<INavigationService>().SingleInstance();

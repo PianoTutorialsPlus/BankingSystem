@@ -8,6 +8,7 @@
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <Button Content="Add Customer" Command="{Binding CreateCustomerCommand}" Width="150"/>
                     <Button Content="Edit Customer" Command="{Binding UpdateCustomerCommand}" Width="150"/>
+                    <Button Content="Delete Customer" Command="{Binding DeleteCustomerCommand}" Width="150"/>
                 </StackPanel>
                 <DataGrid ItemsSource="{Binding Customers}"
                           SelectedItem="{Binding SelectedCustomer, Mode=TwoWay}"
