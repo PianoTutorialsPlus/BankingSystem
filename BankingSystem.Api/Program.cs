@@ -2,7 +2,6 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using AutoMapper.Contrib.Autofac.DependencyInjection;
 using BankingSystem.Api.Middleware;
-using BankingSystem.Application.Contracts;
 using BankingSystem.Application.Contracts.Repository;
 using BankingSystem.Application.Features.Customers.Commands.CreateCustomer;
 using BankingSystem.Application.Interfaces;
@@ -13,7 +12,6 @@ using BankingSystem.Persistence.Services;
 using MediatR.Extensions.Autofac.DependencyInjection;
 using MediatR.Extensions.Autofac.DependencyInjection.Builder;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +26,14 @@ var checksumSecret = builder.Configuration["ChecksumSecret"] ?? "dev-secret";
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Add CORS policy
+builder.Services.AddCors(options =>
+    options.AddPolicy("AllowBlazorClient", builder => builder
+        .WithOrigins("https://localhost:7247")
+        .AllowAnyOrigin()
+        .AllowAnyHeader()
+        .AllowAnyMethod()));
 
 // EF Core
 builder.Services.AddDbContext<BankingDbContext>(opts => opts.UseSqlite(conn));
@@ -64,6 +70,9 @@ using (var sc = app.Services.CreateScope())
     var db = sc.ServiceProvider.GetRequiredService<BankingDbContext>();
     db.Database.EnsureCreated();
 }
+
+// Enable CORS before MapControllers()
+app.UseCors("AllowBlazorClient");
 
 if (app.Environment.IsDevelopment())
 {

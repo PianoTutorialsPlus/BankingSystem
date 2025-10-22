@@ -1,0 +1,28 @@
+﻿@page "/customers/create"
+@inject NavigationManager Nav
+
+<h3>Create Customer</h3>
+
+<EditForm Model="@Customer" OnValidSubmit="@HandleSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label>First Name:</label>
+        <InputText @bind-Value="Customer.FirstName" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>Last Name:</label>
+        <InputText @bind-Value="Customer.LastName" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>Email:</label>
+        <InputText @bind-Value="Customer.EmailAddress" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+</EditForm>
+
+

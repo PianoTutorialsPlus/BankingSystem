@@ -3,6 +3,7 @@ using BankingSystem.WebUI.Services.Base;
 using BankingSystem.WebUI.Services.Customer;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using System.Reflection;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -12,5 +13,7 @@ builder.Services
     .AddHttpClient<IClient, Client>(client => client.BaseAddress = new Uri("https://localhost:7178/"));
 
 builder.Services.AddScoped<ICustomerService, CustomerService>();
+
+builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
 await builder.Build().RunAsync();
