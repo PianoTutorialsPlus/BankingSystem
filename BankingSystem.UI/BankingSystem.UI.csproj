@@ -15,8 +15,4 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\BankingSystem.Application\BankingSystem.Application.csproj" />
-  </ItemGroup>
-
 </Project>
