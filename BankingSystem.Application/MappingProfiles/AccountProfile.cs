@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using BankingSystem.Application.Features.Accounts.Commands.CreateAccount;
-using BankingSystem.Application.Features.Accounts.Queries;
 using BankingSystem.Application.Features.Accounts.Queries.GetAllAccounts;
 using BankingSystem.Domain.Entities;
 

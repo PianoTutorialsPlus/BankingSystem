@@ -37,4 +37,17 @@ public class AccountService : BaseHttpService, IAccountService
             return ConvertApiExceptions<Guid>(ex);
         }
     }
+
+    public async Task<Response<Guid>> DeleteAccount(int id)
+    {
+        try
+        {
+            await client.AccountsDELETEAsync(id);
+            return new Response<Guid>() { Success = true };
+        }
+        catch (ApiException ex)
+        {
+            return ConvertApiExceptions<Guid>(ex);
+        }
+    }
 }

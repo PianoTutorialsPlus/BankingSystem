@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.ComponentModel;
 
-namespace BankingSystem.UI.Models.Customer
+namespace BankingSystem.UI.Models
 {
     public abstract class AbstractDtoValidationBase: INotifyDataErrorInfo
     {

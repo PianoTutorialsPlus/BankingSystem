@@ -10,12 +10,13 @@ using System.Windows.Input;
 
 namespace BankingSystem.UI.ViewModels.Accounts;
 
-public class CreateAccountViewModel : INotifyPropertyChanged
+public class CreateAccountViewModel 
 {
     private readonly IAccountService accountService;
     private readonly ICustomerService customerService;
     public ObservableCollection<CustomerVM> Customers { get; } = new();
     public AccountVM Account { get; set; } = new();
+    public ICommand SaveCommand { get; }
     public CreateAccountViewModel(IAccountService accountService, ICustomerService customerService)
     {
         this.accountService = accountService;
@@ -24,36 +25,16 @@ public class CreateAccountViewModel : INotifyPropertyChanged
         _ = LoadCustomersAsync();
     }
 
-    public ICommand SaveCommand { get; }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-    private void OnPropertyChanged([CallerMemberName] string? name = null)
-        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-
     private async Task SaveAsync()
     {
-        //if (Account.CustomerId is null)
-        //{
-        //    MessageBox.Show("Please select a customer.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
-        //    return;
-        //}
-
         var response = await accountService.CreateAccount(Account);
 
-        if (!response.Success)
-        {
-            // Convert response.ValidationErrors / Message to UI validation as you did for customers
-            // Example: show messagebox for now
-            var msg = response.Message ?? "Could not create account.";
-            System.Windows.MessageBox.Show(msg, "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
-            return;
-        }
+        if (response.Success)
+            CloseWindow();
 
-        // success -> close window
-        System.Windows.Application.Current.Windows
-            .OfType<System.Windows.Window>()
-            .FirstOrDefault(w => w.DataContext == this)?
-            .Close();
+        if (response.ValidationErrors != null)
+            foreach (var error in response.ValidationErrors)
+                Account.SetErrors(error.Key, error.Value);
     }
     private async Task LoadCustomersAsync()
     {
@@ -61,5 +42,12 @@ public class CreateAccountViewModel : INotifyPropertyChanged
         Customers.Clear();
         foreach (var c in customers)
             Customers.Add(c);
+    }
+    private void CloseWindow()
+    {
+        System.Windows.Application.Current.Windows
+            .OfType<Window>()
+            .FirstOrDefault(w => w.DataContext == this)?
+            .Close();
     }
 }

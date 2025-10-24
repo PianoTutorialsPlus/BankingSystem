@@ -1,10 +1,7 @@
 ﻿using BankingSystem.Application.Features.Accounts.Commands.CreateAccount;
-using BankingSystem.Application.Features.Accounts.Queries;
+using BankingSystem.Application.Features.Accounts.Commands.DeleteAccont;
 using BankingSystem.Application.Features.Accounts.Queries.GetAccountDetails;
 using BankingSystem.Application.Features.Accounts.Queries.GetAllAccounts;
-using BankingSystem.Application.Features.Customers.Queries.GetAllCustomers;
-using BankingSystem.Application.Features.Customers.Queries.GetCustomerDetails;
-using BankingSystem.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -45,5 +42,13 @@ public class AccountsController : ControllerBase
     {
         var response = await mediator.Send(account);
         return CreatedAtAction(nameof(Get), new { id = response });
+    }
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Delete(int id)
+    {
+        await mediator.Send(new DeleteAccountCommand { Id = id });
+        return NoContent();
     }
 }

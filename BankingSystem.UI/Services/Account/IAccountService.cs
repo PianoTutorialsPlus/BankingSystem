@@ -7,5 +7,6 @@ namespace BankingSystem.UI.Services.Account
     {
         Task<List<AccountVM>> GetAccounts();
         Task<Response<Guid>> CreateAccount(AccountVM account);
+        Task<Response<Guid>> DeleteAccount(int id);
     }
 }

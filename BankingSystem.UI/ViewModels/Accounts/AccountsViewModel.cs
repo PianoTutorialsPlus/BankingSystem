@@ -77,13 +77,13 @@ namespace BankingSystem.UI.ViewModels.Accounts
             if (result != MessageBoxResult.Yes)
                 return;
 
-            //var response = await accountService.DeleteAccount(SelectedAccount.Id);
+            var response = await accountService.DeleteAccount(SelectedAccount.Id);
 
-            //if (!response.Success)
-            //{
-            //    MessageBox.Show(response.Message ?? "Failed to delete account.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            //    return;
-            //}
+            if (!response.Success)
+            {
+                MessageBox.Show(response.Message ?? "Failed to delete account.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
 
             await LoadAccountsAsync();
         }

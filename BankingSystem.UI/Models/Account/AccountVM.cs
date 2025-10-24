@@ -1,6 +1,6 @@
 ﻿namespace BankingSystem.UI.Models.Account;
 
-public class AccountVM
+public class AccountVM : AbstractDtoValidationBase
 {
     public int Id { get; set; }
     public int CustomerId { get; set; }

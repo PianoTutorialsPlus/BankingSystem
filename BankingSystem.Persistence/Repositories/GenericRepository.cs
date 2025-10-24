@@ -22,7 +22,21 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
 
     public async Task DeleteAsync(T entity)
     {
+        // Check if an entity with the same key is already being tracked
+        var trackedEntity = context.Set<T>()
+            .Local
+            .FirstOrDefault(e => e.Id == entity.Id);
+
+        if (trackedEntity != null)
+        {
+            // Detach the already tracked instance
+            context.Entry(trackedEntity).State = EntityState.Detached;
+        }
+
+        // Attach the entity we want to delete (in case it's not tracked)
+        context.Attach(entity);
         context.Remove(entity);
+
         await context.SaveChangesAsync();
     }
 

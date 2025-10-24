@@ -19,7 +19,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
 
 // Configuration
-var conn = builder.Configuration.GetConnectionString("Default") ?? "Data Source=db_bankingSystem.db";
 var checksumSecret = builder.Configuration["ChecksumSecret"] ?? "dev-secret";
 
 // Add services to DI
@@ -36,7 +35,8 @@ builder.Services.AddCors(options =>
         .AllowAnyMethod()));
 
 // EF Core
-builder.Services.AddDbContext<BankingDbContext>(opts => opts.UseSqlite(conn));
+builder.Services.AddDbContext<BankingDbContext>(opts 
+    => opts.UseSqlite(builder.Configuration.GetConnectionString("HrDatabaseConnectionString")));
 
 builder.Host.ConfigureContainer<ContainerBuilder>(container =>
 {
