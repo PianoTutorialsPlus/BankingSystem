@@ -27,21 +27,14 @@ namespace BankingSystem.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("BalanceChecksum")
-                        .IsRequired()
+                    b.Property<decimal>("Balance")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<decimal>("CurrentBalance")
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("CustomerId")
                         .HasColumnType("INTEGER");
-
-                    b.Property<decimal>("OpeningBalance")
-                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -50,7 +43,7 @@ namespace BankingSystem.Persistence.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("Accounts");
+                    b.ToTable("Accounts", (string)null);
                 });
 
             modelBuilder.Entity("BankingSystem.Domain.Entities.Customer", b =>
@@ -96,7 +89,7 @@ namespace BankingSystem.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Customers");
+                    b.ToTable("Customers", (string)null);
                 });
 
             modelBuilder.Entity("BankingSystem.Domain.Entities.Transaction", b =>
@@ -139,7 +132,7 @@ namespace BankingSystem.Persistence.Migrations
 
                     b.HasIndex("AccountId");
 
-                    b.ToTable("Transactions");
+                    b.ToTable("Transactions", (string)null);
                 });
 
             modelBuilder.Entity("BankingSystem.Domain.Entities.User", b =>
@@ -168,7 +161,7 @@ namespace BankingSystem.Persistence.Migrations
                     b.HasIndex("Username")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("BankingSystem.Domain.Entities.Account", b =>

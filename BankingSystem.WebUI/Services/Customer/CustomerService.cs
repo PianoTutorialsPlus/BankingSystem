@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BankingSystem.WebUI.Models.Customer;
 using BankingSystem.WebUI.Services.Base;
+using Blazored.LocalStorage;
 
 namespace BankingSystem.WebUI.Services.Customer;
 
@@ -8,7 +9,10 @@ public class CustomerService : BaseHttpService, ICustomerService
 {
     private readonly IMapper mapper;
 
-    public CustomerService(IClient client, IMapper mapper) : base(client) 
+    public CustomerService(
+        IClient client,
+        ILocalStorageService localStorageService,
+        IMapper mapper) : base(client, localStorageService) 
     {
         this.mapper = mapper;
     }

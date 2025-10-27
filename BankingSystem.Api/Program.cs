@@ -1,22 +1,21 @@
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using AutoMapper.Contrib.Autofac.DependencyInjection;
 using BankingSystem.Api.Middleware;
-using BankingSystem.Application.Contracts.Repository;
-using BankingSystem.Application.Features.Customers.Commands.CreateCustomer;
 using BankingSystem.Application.Interfaces;
-using BankingSystem.Infrastructure.Repositories;
+using BankingSystem.Application.DI;
 using BankingSystem.Persistence.DatabaseContext;
-using BankingSystem.Persistence.Repositories;
 using BankingSystem.Persistence.Services;
-using MediatR.Extensions.Autofac.DependencyInjection;
-using MediatR.Extensions.Autofac.DependencyInjection.Builder;
-using Microsoft.EntityFrameworkCore;
+using BankingSystem.Persistence.DI;
+using BankingSystem.Identity.DI;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Use Autofac
 builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
+
+builder.Services.AddApplicationServices();
+builder.Services.AddPersistenceServices(builder.Configuration);
+builder.Services.AddIdentityServices(builder.Configuration);
 
 // Configuration
 var checksumSecret = builder.Configuration["ChecksumSecret"] ?? "dev-secret";
@@ -34,30 +33,15 @@ builder.Services.AddCors(options =>
         .AllowAnyHeader()
         .AllowAnyMethod()));
 
-// EF Core
-builder.Services.AddDbContext<BankingDbContext>(opts 
-    => opts.UseSqlite(builder.Configuration.GetConnectionString("HrDatabaseConnectionString")));
 
 builder.Host.ConfigureContainer<ContainerBuilder>(container =>
 {
-    container.RegisterAutoMapper(typeof(CreateCustomerCommand).Assembly);
-
-    var configuration = MediatRConfigurationBuilder
-    .Create("", typeof(CreateCustomerCommand).Assembly)
-    .WithAllOpenGenericHandlerTypesRegistered()
-    .Build();
-
-    container.RegisterMediatR(configuration);
-
-    // Repositories
-    container.RegisterGeneric(typeof(GenericRepository<>)).As(typeof(IGenericRepository<>)).InstancePerLifetimeScope();
+    container.RegisterModule<ApplicationModule>();
+    container.RegisterModule<PersistenceModule>();
 
     // App services
     container.RegisterType<HmacChecksumService>().As<IChecksumService>().WithParameter("secret", checksumSecret).SingleInstance();
 
-    // You may register other handlers here...
-    container.RegisterType<CustomerRepository>().As<ICustomerRepository>().SingleInstance();
-    container.RegisterType<AccountRepository>().As<IAccountRepository>().SingleInstance();
 });
 
 var app = builder.Build();
@@ -71,16 +55,16 @@ using (var sc = app.Services.CreateScope())
     db.Database.EnsureCreated();
 }
 
-// Enable CORS before MapControllers()
-app.UseCors("AllowBlazorClient");
-
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
+app.UseCors("AllowBlazorClient");
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
 app.Run();

@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
+using BankingSystem.Application.Contracts;
 using BankingSystem.Application.Interfaces;
 
 namespace BankingSystem.Persistence.Services;

@@ -1,0 +1,14 @@
+﻿@page "/logout"
+@using BankingSystem.WebUI.Services.Authentication
+@inject IAuthenticationService AuthenticationService
+@inject NavigationManager NavigationManager
+
+<h3>Logout</h3>
+
+@code {
+	protected override async Task OnInitializedAsync()
+	{
+		await AuthenticationService.Logout();
+		NavigationManager.NavigateTo("/");
+	}
+}

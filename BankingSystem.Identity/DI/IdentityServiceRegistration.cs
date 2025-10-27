@@ -1,0 +1,56 @@
+﻿using BankingSystem.Application.Contracts.Identity;
+using BankingSystem.Application.Models.Identity;
+using BankingSystem.Identity.DbContext;
+using BankingSystem.Identity.Models;
+using BankingSystem.Identity.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+
+namespace BankingSystem.Identity.DI;
+
+public static class IdentityServiceRegistration
+{
+    public static IServiceCollection AddIdentityServices(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
+
+        services.AddDbContext<BankingSystemDbContext>(options =>
+        {
+            options.UseSqlite(configuration.GetConnectionString("HrDatabaseConnectionString"));
+        });
+
+        services
+            .AddIdentity<ApplicationUser, IdentityRole>()
+            .AddEntityFrameworkStores<BankingSystemDbContext>()
+            .AddDefaultTokenProviders();
+
+        services.AddTransient<IAuthService, AuthService>();
+        services.AddTransient<IUserService, UserService>();
+
+        services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        }).AddJwtBearer(o =>
+        {
+            o.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero,
+                ValidIssuer = configuration["JwtSettings:Issuer"],
+                ValidAudience = configuration["JwtSettings:Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSettings:Key"]))
+            };
+        });
+
+        return services;
+    }
+}

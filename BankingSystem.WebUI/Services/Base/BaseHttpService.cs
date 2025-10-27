@@ -1,12 +1,16 @@
-﻿namespace BankingSystem.WebUI.Services.Base;
+﻿using Blazored.LocalStorage;
+
+namespace BankingSystem.WebUI.Services.Base;
 
 public class BaseHttpService
 {
     protected readonly IClient client;
+    protected readonly ILocalStorageService localStorageService;
 
-    public BaseHttpService(IClient client)
+    public BaseHttpService(IClient client, ILocalStorageService localStorageService)
     {
         this.client = client;
+        this.localStorageService = localStorageService;
     }
 
     protected Response<Guid> ConvertApiExceptions<Guid>(ApiException ex)
