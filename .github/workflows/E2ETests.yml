@@ -42,7 +42,7 @@ jobs:
         )
         foreach ($url in $urls) {
         Write-Host "Waiting for $url to become available..."
-        $maxRetries = 30
+        $maxRetries = 200
         $ready = $false
         for ($i=0; $i -lt $maxRetries; $i++) {
             try {
@@ -57,7 +57,7 @@ jobs:
             }
         }
         if (-not $ready) {
-            Write-Error "❌ Timeout waiting for $url"
+            Write-Error "Timeout waiting for $url"
             exit 1
         }
         }
