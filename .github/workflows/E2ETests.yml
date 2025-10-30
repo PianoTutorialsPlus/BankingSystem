@@ -27,40 +27,33 @@ jobs:
 
     - name: Start API
       shell: pwsh
-      run: Start-Process dotnet -ArgumentList "run --project BankingSystem.Api/BankingSystem.Api.csproj --urls=http://localhost:7178/"
+      run: |
+        $api = Start-Process dotnet -ArgumentList "run --project BankingSystem.Api/BankingSystem.Api.csproj --urls=http://localhost:7178" -NoNewWindow -PassThru
+        Write-Host "Started API process: $($api.Id)"
 
     - name: Start UI
       shell: pwsh
-      run: Start-Process dotnet -ArgumentList "run --project BankingSystem.UI/BankingSystem.UI.csproj --urls=http://localhost:7247/"
+      run: |
+        $ui = Start-Process dotnet -ArgumentList "run --project BankingSystem.UI/BankingSystem.UI.csproj --urls=http://localhost:7247" -NoNewWindow -PassThru
+        Write-Host "Started UI process: $($ui.Id)"
 
-    - name: Wait for API and UI to start
+    - name: Wait for API and UI
       shell: pwsh
       run: |
-        $urls = @(
-        "http://localhost:7247/"       # your Blazor app base
-        "http://localhost:7178/" # change to your API health or swagger endpoint
-        )
-        foreach ($url in $urls) {
-        Write-Host "Waiting for $url to become available..."
-        $maxRetries = 30
-        $ready = $false
-        for ($i=0; $i -lt $maxRetries; $i++) {
+        function Wait-ForUrl($url, $timeoutSec=60) {
+          $start = Get-Date
+          while (((Get-Date) - $start).TotalSeconds -lt $timeoutSec) {
             try {
-            $response = Invoke-WebRequest -Uri $url -UseBasicParsing -SkipCertificateCheck -TimeoutSec 5
-            if ($response.StatusCode -eq 200) {
-                Write-Host "$url is ready!"
-                $ready = $true
-                break
-            }
-            } catch {
-            Start-Sleep -Seconds 2
-            }
+              $r = Invoke-WebRequest $url -UseBasicParsing -TimeoutSec 5
+              if ($r.StatusCode -eq 200) { Write-Host "$url ready"; return }
+            } catch {}
+            Start-Sleep 2
+          }
+          throw "Timeout waiting for $url"
         }
-        if (-not $ready) {
-            Write-Error "Timeout waiting for $url"
-            exit 1
-        }
-        }
+
+        Wait-ForUrl "http://localhost:7247/index.html"  # Blazor static file
+        Wait-ForUrl "http://localhost:7178/health"   # or /swagger
 
     - name: Install Playwright browsers
       shell: pwsh
@@ -68,5 +61,5 @@ jobs:
 
     - name: Run E2E Tests
       env:
-        BASE_URL: http://localhost:7247/
+        BASE_URL: http://localhost:7247
       run: dotnet test BankingSystem.E2ETests/ --configuration Release --no-build --verbosity normal --settings BankingSystem.E2ETests/BankingSystem.E2ETests.runsettings
