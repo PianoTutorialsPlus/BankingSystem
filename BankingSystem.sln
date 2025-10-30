@@ -27,6 +27,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BankingSystem.WebUI", "Bank
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BankingSystem.Identity", "BankingSystem.Identity\BankingSystem.Identity.csproj", "{0B5E0BA3-BDF4-4FAD-B50E-281D9375B822}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{1BF05B48-E0C3-4755-AA12-E31944335D29}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BankingSystem.E2ETests", "BankingSystem.E2ETests\BankingSystem.E2ETests.csproj", "{5D668C75-38CF-4846-BA4B-3877362222B8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +65,10 @@ Global
 		{0B5E0BA3-BDF4-4FAD-B50E-281D9375B822}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B5E0BA3-BDF4-4FAD-B50E-281D9375B822}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B5E0BA3-BDF4-4FAD-B50E-281D9375B822}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D668C75-38CF-4846-BA4B-3877362222B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D668C75-38CF-4846-BA4B-3877362222B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D668C75-38CF-4846-BA4B-3877362222B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D668C75-38CF-4846-BA4B-3877362222B8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -77,6 +85,7 @@ Global
 		{607CD35C-AB38-4EA4-A6AD-0871D09AC247} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{07DDE7A3-76D2-4405-849A-595C11CC2077} = {607CD35C-AB38-4EA4-A6AD-0871D09AC247}
 		{0B5E0BA3-BDF4-4FAD-B50E-281D9375B822} = {4C7A57DC-44F8-4245-AD68-3E7AE786682E}
+		{5D668C75-38CF-4846-BA4B-3877362222B8} = {1BF05B48-E0C3-4755-AA12-E31944335D29}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A7A704AC-658B-4C1D-B753-FC9047E83803}
