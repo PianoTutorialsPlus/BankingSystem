@@ -6,7 +6,7 @@ namespace BankingSystem.E2ETests;
 [TestFixture]
 public class LoginTests : PageTest
 {
-    private const string BaseUrl = "https://localhost:7247"; // or your test environment
+    private string BaseUrl => TestContext.Parameters.Get("E2E_BaseUrl")!; // or your test environment
 
     [Test]
     public async Task Should_Login_Successfully()

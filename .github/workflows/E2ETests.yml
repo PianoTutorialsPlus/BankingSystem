@@ -27,12 +27,12 @@ jobs:
 
     - name: Start API
       run: |
-        Start-Process "dotnet" -ArgumentList "run", "--project", "BankingSystem.Api/BankingSystem.Api.csproj", "--urls=http://localhost:7178"
+        Start-Process "dotnet" -ArgumentList "run", "--project", "BankingSystem.Api/BankingSystem.Api.csproj", "--urls=https://localhost:7178"
         Start-Sleep -Seconds 10
 
     - name: Start UI
       run: |
-        Start-Process "dotnet" -ArgumentList "run", "--project", "BankingSystem.UI/BankingSystem.UI.csproj", "--urls=http://localhost:7247"
+        Start-Process "dotnet" -ArgumentList "run", "--project", "BankingSystem.UI/BankingSystem.UI.csproj", "--urls=https://localhost:7247"
         Start-Sleep -Seconds 15
 
     - name: Install Playwright browsers
@@ -42,4 +42,4 @@ jobs:
     - name: Run E2E Tests
       env:
         BASE_URL: http://localhost:7247
-      run: dotnet test BankingSystem.E2ETests/ --configuration Release --no-build --verbosity normal
+      run: dotnet test BankingSystem.E2ETests/ --configuration Release --no-build --verbosity normal --settings BankingSystem.E2ETests/BankingSystem.E2ETests.runsettings

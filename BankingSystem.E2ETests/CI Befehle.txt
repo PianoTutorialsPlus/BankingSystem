@@ -1,0 +1,10 @@
+Run Test headless
+dotnet test --settings BankingSystem.E2ETests/BankingSystem.E2ETests.runsettings
+
+Run Test with header
+$env:HEADED="1"
+dotnet test --settings BankingSystem.E2ETests/BankingSystem.E2ETests.runsettings
+
+Debug Test
+$env:PWDEBUG=1
+dotnet test --settings BankingSystem.E2ETests/BankingSystem.E2ETests.runsettings

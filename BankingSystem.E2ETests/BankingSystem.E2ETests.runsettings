@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <RunConfiguration>
+    <!-- Framework target -->
+    <TargetFrameworkVersion>net8.0-windows</TargetFrameworkVersion>
+
+    <!-- Maximum test execution time -->
+    <TestSessionTimeout>600000</TestSessionTimeout> <!-- 10 minutes -->
+
+    <!-- Parallelization -->
+    <MaxCpuCount>1</MaxCpuCount>
+
+    <!-- Output configuration -->
+    <ResultsDirectory>TestResults</ResultsDirectory>
+  </RunConfiguration>
+	
+  <TestRunParameters>
+    <!-- URLs for your environment -->
+    <Parameter name="E2E_BaseUrl" value="https://localhost:7247" />
+    <Parameter name="E2E_ApiUrl" value="http://localhost:7178" />
+    <!-- Headless Playwright mode -->
+    <Parameter name="Playwright_Headless" value="false" />
+  </TestRunParameters>
+</RunSettings>
