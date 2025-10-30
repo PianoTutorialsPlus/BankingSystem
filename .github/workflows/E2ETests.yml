@@ -27,11 +27,11 @@ jobs:
 
     - name: Start API
       shell: pwsh
-      run: Start-Process dotnet -ArgumentList "run --project BankingSystem.Api/BankingSystem.Api.csproj --urls=http://localhost:7178"
+      run: Start-Process dotnet -ArgumentList "run --project BankingSystem.Api/BankingSystem.Api.csproj --urls=http://localhost:7178/"
 
     - name: Start UI
       shell: pwsh
-      run: Start-Process dotnet -ArgumentList "run --project BankingSystem.UI/BankingSystem.UI.csproj --urls=http://localhost:7247"
+      run: Start-Process dotnet -ArgumentList "run --project BankingSystem.UI/BankingSystem.UI.csproj --urls=http://localhost:7247/"
 
     - name: Wait for API and UI to start
       shell: pwsh
@@ -68,5 +68,5 @@ jobs:
 
     - name: Run E2E Tests
       env:
-        BASE_URL: http://localhost:7247
+        BASE_URL: http://localhost:7247/
       run: dotnet test BankingSystem.E2ETests/ --configuration Release --no-build --verbosity normal --settings BankingSystem.E2ETests/BankingSystem.E2ETests.runsettings
