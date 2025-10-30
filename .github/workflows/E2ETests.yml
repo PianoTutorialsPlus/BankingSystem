@@ -26,14 +26,41 @@ jobs:
       run: dotnet build --configuration Release --no-restore
 
     - name: Start API
-      run: |
-        Start-Process "dotnet" -ArgumentList "run", "--project", "BankingSystem.Api/BankingSystem.Api.csproj", "--urls=https://localhost:7178"
-        Start-Sleep -Seconds 60
+      shell: pwsh
+      run: Start-Process dotnet -ArgumentList "run --project BankingSystem.Api/BankingSystem.Api.csproj --urls=https://localhost:7178"
 
     - name: Start UI
+      shell: pwsh
+      run: Start-Process dotnet -ArgumentList "run --project BankingSystem.UI/BankingSystem.UI.csproj --urls=https://localhost:7247"
+
+    - name: Wait for API and UI to start
+      shell: pwsh
       run: |
-        Start-Process "dotnet" -ArgumentList "run", "--project", "BankingSystem.UI/BankingSystem.UI.csproj", "--urls=https://localhost:7247"
-        Start-Sleep -Seconds 60
+        $urls = @(
+        "https://localhost:7178" # change to your API health or swagger endpoint
+        "https://localhost:7247"       # your Blazor app base
+        )
+        foreach ($url in $urls) {
+        Write-Host "Waiting for $url to become available..."
+        $maxRetries = 30
+        $ready = $false
+        for ($i=0; $i -lt $maxRetries; $i++) {
+            try {
+            $response = Invoke-WebRequest -Uri $url -UseBasicParsing -SkipCertificateCheck -TimeoutSec 5
+            if ($response.StatusCode -eq 200) {
+                Write-Host "$url is ready!"
+                $ready = $true
+                break
+            }
+            } catch {
+            Start-Sleep -Seconds 2
+            }
+        }
+        if (-not $ready) {
+            Write-Error "❌ Timeout waiting for $url"
+            exit 1
+        }
+        }
 
     - name: Install Playwright browsers
       shell: pwsh
