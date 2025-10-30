@@ -17,8 +17,8 @@
   <TestRunParameters>
     <!-- URLs for your environment -->
     <Parameter name="E2E_BaseUrl" value="https://localhost:7247" />
-    <Parameter name="E2E_ApiUrl" value="http://localhost:7178" />
+    <Parameter name="E2E_ApiUrl" value="https://localhost:7178" />
     <!-- Headless Playwright mode -->
-    <Parameter name="Playwright_Headless" value="false" />
+    <Parameter name="Playwright_Headless" value="true" />
   </TestRunParameters>
 </RunSettings>

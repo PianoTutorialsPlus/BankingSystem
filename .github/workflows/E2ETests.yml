@@ -28,12 +28,12 @@ jobs:
     - name: Start API
       run: |
         Start-Process "dotnet" -ArgumentList "run", "--project", "BankingSystem.Api/BankingSystem.Api.csproj", "--urls=https://localhost:7178"
-        Start-Sleep -Seconds 10
+        Start-Sleep -Seconds 60
 
     - name: Start UI
       run: |
         Start-Process "dotnet" -ArgumentList "run", "--project", "BankingSystem.UI/BankingSystem.UI.csproj", "--urls=https://localhost:7247"
-        Start-Sleep -Seconds 15
+        Start-Sleep -Seconds 60
 
     - name: Install Playwright browsers
       shell: pwsh
