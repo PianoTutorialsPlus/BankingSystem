@@ -25,16 +25,14 @@ jobs:
     - name: Build all projects
       run: dotnet build --configuration Release --no-restore
 
-    # 👇 Start backend API
     - name: Start API
       run: |
-        Start-Process dotnet run --project BankingSystem.Api/BankingSystem.Api.csproj --urls=http://localhost:7178
+        Start-Process "dotnet" -ArgumentList "run", "--project", "BankingSystem.Api/BankingSystem.Api.csproj", "--urls=http://localhost:7178"
         Start-Sleep -Seconds 10
 
-    # 👇 Start Blazor UI
     - name: Start UI
       run: |
-        Start-Process dotnet run --project BankingSystem.UI/BankingSystem.UI.csproj --urls=http://localhost:7247
+        Start-Process "dotnet" -ArgumentList "run", "--project", "BankingSystem.UI/BankingSystem.UI.csproj", "--urls=http://localhost:7247"
         Start-Sleep -Seconds 15
 
     # 👇 Install Playwright browsers
