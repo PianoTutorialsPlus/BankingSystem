@@ -1,8 +1,9 @@
-﻿namespace BankingSystem.Domain.Entities;
+﻿using BankingSystem.Domain.Common;
 
-public class User
+namespace BankingSystem.Domain.Entities;
+
+public class User : BaseEntity
 {
-    public int Id { get; set; }
     public string Username { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty; // store hashed pwd
     public string FullName { get; set; } = string.Empty;

@@ -1,10 +1,10 @@
-﻿using BankingSystem.Domain.Enums;
+﻿using BankingSystem.Domain.Common;
+using BankingSystem.Domain.Enums;
 
 namespace BankingSystem.Domain.Entities;
 
-public class Transaction
+public class Transaction : BaseEntity
 {
-    public int Id { get; set; }
     public int AccountId { get; set; }
     public Account? Account { get; set; }
     public DateTime TransactionDate { get; set; }

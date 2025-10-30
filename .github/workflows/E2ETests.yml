@@ -37,7 +37,8 @@ jobs:
 
     # 👇 Install Playwright browsers
     - name: Install Playwright browsers
-      run: dotnet tool run playwright install --with-deps
+      shell: pwsh
+      run: ./BankingSystem.E2ETests/bin/Release/net8.0/playwright.ps1 install --with-deps
 
     # 👇 Run Playwright E2E tests
     - name: Run E2E Tests
