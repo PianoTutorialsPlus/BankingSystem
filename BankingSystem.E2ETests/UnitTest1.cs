@@ -1,43 +1,36 @@
 ﻿using Microsoft.Playwright;
-using NUnit.Framework;
 
-namespace BankingSystem.E2ETests
+namespace BankingSystem.E2ETests;
+
+[Parallelizable(ParallelScope.Self)]
+[TestFixture]
+public class LoginTests : PageTest
 {
-    [TestFixture]
-    public class LoginTests
+    private const string BaseUrl = "https://localhost:7247"; // or your test environment
+
+    [Test]
+    public async Task Should_Login_Successfully()
     {
-        private IPage _page = null!;
-        private IBrowserContext _context = null!;
-        private string BaseUrl => TestServerFixture.WebUrl;
+        // Navigate to login page
+        await Page.GotoAsync($"{BaseUrl}/login");
+        await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
-        [SetUp]
-        public async Task Setup()
-        {
-            _context = await TestServerFixture.Browser!.NewContextAsync();
-            _page = await _context.NewPageAsync();
-        }
+        // Ensure fields are rendered
+        await Expect(Page.Locator("#userName")).ToBeVisibleAsync();
+        await Expect(Page.Locator("#password")).ToBeVisibleAsync();
 
-        [TearDown]
-        public async Task Cleanup()
-        {
-            await _context.CloseAsync();
-        }
+        // Fill in credentials
+        await Page.FillAsync("#userName", "user@localhost.com");
+        await Page.FillAsync("#password", "P@ssword1");
 
-        [Test]
-        public async Task Should_Login_Successfully()
-        {
-            await _page.GotoAsync($"{BaseUrl}login");
-            await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+        // Click login
+        await Page.ClickAsync("input[value='Login']");
 
-            await _page.WaitForSelectorAsync("#userName");
-            await _page.FillAsync("#userName", "user@localhost.com");
-            await _page.FillAsync("#password", "P@ssword1");
+        // Wait for redirect to home/dashboard
+        await Page.WaitForURLAsync("**/");
 
-            await _page.ClickAsync("input[value='Login']");
-            await _page.WaitForURLAsync("**/");
-
-            var heading = await _page.TextContentAsync("h1");
-            Assert.That(heading, Does.Contain("Welcome"));
-        }
+        // Validate we landed on the welcome page
+        var heading = await Page.TextContentAsync("h1");
+        Assert.That(heading, Does.Contain("Welcome to Banking System"));
     }
 }
