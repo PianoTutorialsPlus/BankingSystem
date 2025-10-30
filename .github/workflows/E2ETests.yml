@@ -28,30 +28,34 @@ jobs:
     - name: Start API with logging
       shell: pwsh
       run: |
-        $apiLog = "$env:GITHUB_WORKSPACE\api.log"
-        Write-Host "API log will be written to $apiLog"
+        $apiOutLog = "$env:GITHUB_WORKSPACE\api_out.log"
+        $apiErrLog = "$env:GITHUB_WORKSPACE\api_err.log"
+        Write-Host "API stdout: $apiOutLog, stderr: $apiErrLog"
         $api = Start-Process dotnet `
             -ArgumentList "run --project BankingSystem.Api/BankingSystem.Api.csproj --urls=http://localhost:7178" `
-            -RedirectStandardOutput $apiLog `
-            -RedirectStandardError $apiLog `
+            -RedirectStandardOutput $apiOutLog `
+            -RedirectStandardError $apiErrLog `
             -NoNewWindow -PassThru
         Write-Host "Started API process Id: $($api.Id)"
-        Start-Sleep -Seconds 2  # give it a moment to start
-        Get-Content $apiLog -Tail 10
+        Start-Sleep -Seconds 2
+        Get-Content $apiOutLog -Tail 10
+        Get-Content $apiErrLog -Tail 10
 
     - name: Start UI with logging
       shell: pwsh
       run: |
-        $uiLog = "$env:GITHUB_WORKSPACE\ui.log"
-        Write-Host "UI log will be written to $uiLog"
+        $uiOutLog = "$env:GITHUB_WORKSPACE\ui_out.log"
+        $uiErrLog = "$env:GITHUB_WORKSPACE\ui_err.log"
+        Write-Host "UI stdout: $uiOutLog, stderr: $uiErrLog"
         $ui = Start-Process dotnet `
             -ArgumentList "run --project BankingSystem.UI/BankingSystem.UI.csproj --urls=http://localhost:7247" `
-            -RedirectStandardOutput $uiLog `
-            -RedirectStandardError $uiLog `
+            -RedirectStandardOutput $uiOutLog `
+            -RedirectStandardError $uiErrLog `
             -NoNewWindow -PassThru
         Write-Host "Started UI process Id: $($ui.Id)"
         Start-Sleep -Seconds 2
-        Get-Content $uiLog -Tail 10
+        Get-Content $uiOutLog -Tail 10
+        Get-Content $uiErrLog -Tail 10
 
     - name: Wait for API and UI
       shell: pwsh
