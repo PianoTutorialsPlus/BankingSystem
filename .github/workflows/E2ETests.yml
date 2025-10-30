@@ -40,7 +40,6 @@ jobs:
         Start-Sleep -Seconds 2
         Get-Content $apiOutLog -Tail 10
         Get-Content $apiErrLog -Tail 10
-        Get-Content $env:GITHUB_WORKSPACE\api_out.log -Tail 10
 
     - name: Start UI with logging
       shell: pwsh
@@ -57,7 +56,6 @@ jobs:
         Start-Sleep -Seconds 2
         Get-Content $uiOutLog -Tail 10
         Get-Content $uiErrLog -Tail 10
-        Get-Content $env:GITHUB_WORKSPACE\ui_out.log -Tail 10
 
     - name: Wait for API and UI to start
       shell: pwsh
@@ -83,6 +81,8 @@ jobs:
             }
           }
           if (-not $ready) {
+            Get-Content $env:GITHUB_WORKSPACE\api_out.log -Tail 10
+            Get-Content $env:GITHUB_WORKSPACE\ui_out.log -Tail 10
             Write-Error "Timeout waiting for $url"
             exit 1
           }
