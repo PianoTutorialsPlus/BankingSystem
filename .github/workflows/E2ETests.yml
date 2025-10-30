@@ -52,8 +52,8 @@ jobs:
           throw "Timeout waiting for $url"
         }
 
+        Wait-ForUrl "http://localhost:7178/swagger"   # or /swagger
         Wait-ForUrl "http://localhost:7247/"  # Blazor static file
-        Wait-ForUrl "http://localhost:7178/"   # or /swagger
 
     - name: Install Playwright browsers
       shell: pwsh
