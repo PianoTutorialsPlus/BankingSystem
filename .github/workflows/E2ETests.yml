@@ -25,21 +25,26 @@ jobs:
     - name: Build all projects
       run: dotnet build --configuration Release --no-restore
 
-    - name: Start API with logging
+    - name: Start API and wait
       shell: pwsh
       run: |
-        $apiOutLog = "$env:GITHUB_WORKSPACE\api_out.log"
-        $apiErrLog = "$env:GITHUB_WORKSPACE\api_err.log"
-        Write-Host "API stdout: $apiOutLog, stderr: $apiErrLog"
-        $api = Start-Process dotnet `
-            -ArgumentList "run --project BankingSystem.Api/BankingSystem.Api.csproj --urls=http://localhost:7178" `
-            -RedirectStandardOutput $apiOutLog `
-            -RedirectStandardError $apiErrLog `
-            -NoNewWindow -PassThru
-        Write-Host "Started API process Id: $($api.Id)"
-        Start-Sleep -Seconds 60
-        Get-Content $apiOutLog -Tail 10
-        Get-Content $apiErrLog -Tail 10
+        $proc = Start-Process dotnet `
+          -ArgumentList "run --project BankingSystem.Api/BankingSystem.Api.csproj --urls=http://localhost:7178 --no-launch-profile" `
+          -NoNewWindow -PassThru
+        Write-Host "Waiting for API to be ready..."
+        $maxRetries = 60
+        $ready = $false
+        for ($i=0; $i -lt $maxRetries; $i++) {
+          try {
+            $resp = Invoke-WebRequest -Uri "http://localhost:7178/health" -UseBasicParsing -TimeoutSec 5
+            if ($resp.StatusCode -eq 200) { 
+              Write-Host "API ready!" 
+              $ready = $true
+              break
+            }
+          } catch { Start-Sleep -Seconds 2 }
+        }
+        if (-not $ready) { Write-Error "API never became ready"; exit 1 }
 
     - name: Start UI with logging
       shell: pwsh
