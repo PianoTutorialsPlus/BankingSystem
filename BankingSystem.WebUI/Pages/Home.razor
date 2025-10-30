@@ -9,11 +9,11 @@
 <AuthorizeView>
 	<Authorized>
 		<button class="btn btn-danger" @onclick="Logout">Logout</button>
+		<button class="btn btn-success" @onclick="GotToCustomers">Customers</button>
 	</Authorized>
 	<NotAuthorized>
 		<button class="btn btn-success" @onclick="GoToLogin">Login</button>
 		<button class="btn btn-primary" @onclick="GoToRegister">Register</button>
-		<button class="btn btn-success" @onclick="GotToCustomers">Customers</button>
 	</NotAuthorized>
 </AuthorizeView>
 
