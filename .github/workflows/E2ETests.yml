@@ -37,12 +37,12 @@ jobs:
       shell: pwsh
       run: |
         $urls = @(
-        "http://localhost:7178" # change to your API health or swagger endpoint
         "http://localhost:7247"       # your Blazor app base
+        "http://localhost:7178" # change to your API health or swagger endpoint
         )
         foreach ($url in $urls) {
         Write-Host "Waiting for $url to become available..."
-        $maxRetries = 200
+        $maxRetries = 30
         $ready = $false
         for ($i=0; $i -lt $maxRetries; $i++) {
             try {
