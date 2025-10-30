@@ -37,7 +37,7 @@ jobs:
             -RedirectStandardError $apiErrLog `
             -NoNewWindow -PassThru
         Write-Host "Started API process Id: $($api.Id)"
-        Start-Sleep -Seconds 2
+        Start-Sleep -Seconds 60
         Get-Content $apiOutLog -Tail 10
         Get-Content $apiErrLog -Tail 10
 
@@ -53,7 +53,7 @@ jobs:
             -RedirectStandardError $uiErrLog `
             -NoNewWindow -PassThru
         Write-Host "Started UI process Id: $($ui.Id)"
-        Start-Sleep -Seconds 2
+        Start-Sleep -Seconds 60
         Get-Content $uiOutLog -Tail 10
         Get-Content $uiErrLog -Tail 10
 
