@@ -62,7 +62,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowBlazorClient");
-app.UseHttpsRedirection();
+
+if (!app.Environment.IsEnvironment("CI"))
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseAuthentication();
 app.UseAuthorization();
 
