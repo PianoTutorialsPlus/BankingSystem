@@ -28,6 +28,7 @@ jobs:
     - name: Start API and wait
       shell: pwsh
       run: |
+        $env:ASPNETCORE_ENVIRONMENT = "Development"
         $proc = Start-Process dotnet `
           -ArgumentList "run --project BankingSystem.Api/BankingSystem.Api.csproj --urls=http://localhost:7178 --no-launch-profile" `
           -NoNewWindow -PassThru
