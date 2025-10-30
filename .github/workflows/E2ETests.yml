@@ -25,17 +25,33 @@ jobs:
     - name: Build all projects
       run: dotnet build --configuration Release --no-restore
 
-    - name: Start API
+    - name: Start API with logging
       shell: pwsh
       run: |
-        $api = Start-Process dotnet -ArgumentList "run --project BankingSystem.Api/BankingSystem.Api.csproj --urls=http://localhost:7178" -NoNewWindow -PassThru
-        Write-Host "Started API process: $($api.Id)"
+        $apiLog = "$env:GITHUB_WORKSPACE\api.log"
+        Write-Host "API log will be written to $apiLog"
+        $api = Start-Process dotnet `
+            -ArgumentList "run --project BankingSystem.Api/BankingSystem.Api.csproj --urls=http://localhost:7178" `
+            -RedirectStandardOutput $apiLog `
+            -RedirectStandardError $apiLog `
+            -NoNewWindow -PassThru
+        Write-Host "Started API process Id: $($api.Id)"
+        Start-Sleep -Seconds 2  # give it a moment to start
+        Get-Content $apiLog -Tail 10
 
-    - name: Start UI
+    - name: Start UI with logging
       shell: pwsh
       run: |
-        $ui = Start-Process dotnet -ArgumentList "run --project BankingSystem.UI/BankingSystem.UI.csproj --urls=http://localhost:7247" -NoNewWindow -PassThru
-        Write-Host "Started UI process: $($ui.Id)"
+        $uiLog = "$env:GITHUB_WORKSPACE\ui.log"
+        Write-Host "UI log will be written to $uiLog"
+        $ui = Start-Process dotnet `
+            -ArgumentList "run --project BankingSystem.UI/BankingSystem.UI.csproj --urls=http://localhost:7247" `
+            -RedirectStandardOutput $uiLog `
+            -RedirectStandardError $uiLog `
+            -NoNewWindow -PassThru
+        Write-Host "Started UI process Id: $($ui.Id)"
+        Start-Sleep -Seconds 2
+        Get-Content $uiLog -Tail 10
 
     - name: Wait for API and UI
       shell: pwsh
