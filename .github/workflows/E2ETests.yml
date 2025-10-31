@@ -91,12 +91,54 @@ jobs:
           exit 1
         }
 
+    - name: Wait for UI to start
+      shell: pwsh
+      run: |
+        $url = "http://localhost:7247"
+        $maxRetries = 30
+        $ready = $false
+        for ($i = 0; $i -lt $maxRetries; $i++) {
+          try {
+            $resp = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 5
+            if ($resp.StatusCode -eq 200) {
+              Write-Host "UI ready!"
+              $ready = $true
+              break
+            }
+          } catch {
+            Start-Sleep -Seconds 2
+          }
+        }
+        if (-not $ready) { Write-Error "UI never became ready"; exit 1 }
+
+
     # -------------------------------
     # Install Playwright browsers
     # -------------------------------
     - name: Install Playwright browsers
       shell: pwsh
       run: ./BankingSystem.E2ETests/bin/Release/net8.0-windows/playwright.ps1 install --with-deps
+
+
+    - name: Wait for UI to start
+      shell: pwsh
+      run: |
+        $url = "http://localhost:7247"
+        $maxRetries = 30
+        $ready = $false
+        for ($i = 0; $i -lt $maxRetries; $i++) {
+          try {
+            $resp = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 5
+            if ($resp.StatusCode -eq 200) {
+              Write-Host "UI ready!"
+              $ready = $true
+              break
+            }
+          } catch {
+            Start-Sleep -Seconds 2
+          }
+        }
+        if (-not $ready) { Write-Error "UI never became ready"; exit 1 }
 
     # -------------------------------
     # Run E2E Tests
