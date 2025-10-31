@@ -30,6 +30,8 @@ jobs:
     # -------------------------------
     - name: Start API
       shell: pwsh
+      env:
+        ASPNETCORE_ENVIRONMENT: CI
       run: |
         $env:ASPNETCORE_ENVIRONMENT = "Development"
         $apiProc = Start-Process dotnet `
