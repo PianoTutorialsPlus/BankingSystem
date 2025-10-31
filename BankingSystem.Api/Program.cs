@@ -74,9 +74,5 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapGet("/health", () => Results.Ok("Healthy"));
 
-app.UseDefaultFiles();
-app.UseStaticFiles();
-app.MapFallbackToFile("index.html");
-
 app.Run();
 
