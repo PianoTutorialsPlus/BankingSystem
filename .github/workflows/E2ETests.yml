@@ -35,7 +35,40 @@ jobs:
     # -------------------------------
     # Start API
     # -------------------------------
-    - name: Start API
+    # - name: Start API
+    #   shell: pwsh
+    #   env:
+    #     ASPNETCORE_ENVIRONMENT: CI
+    #   run: |
+    #     $apiProc = Start-Process dotnet `
+    #       -ArgumentList "run --project BankingSystem.Api/BankingSystem.Api.csproj --urls=http://localhost:7178 --no-launch-profile" `
+    #       -NoNewWindow -PassThru
+    #     Write-Host "Started API process ID: $($apiProc.Id)"
+
+    #     # Wait for API to become ready
+    #     $maxRetries = 30
+    #     $ready = $false
+    #     for ($i = 0; $i -lt $maxRetries; $i++) {
+    #       try {
+    #         $resp = Invoke-WebRequest -Uri "http://localhost:7178/health" -UseBasicParsing -TimeoutSec 5
+    #         if ($resp.StatusCode -eq 200) {
+    #           Write-Host "API ready!"
+    #           $ready = $true
+    #           break
+    #         }
+    #       } catch {
+    #         Start-Sleep -Seconds 2
+    #       }
+    #     }
+    #     if (-not $ready) {
+    #       Write-Error "API never became ready"
+    #       exit 1
+    #     }
+
+    # -------------------------------
+    # Start UI (Blazor WebAssembly)
+    # -------------------------------
+    - name: Publish and serve Blazor UI
       shell: pwsh
       env:
         ASPNETCORE_ENVIRONMENT: CI
@@ -65,12 +98,6 @@ jobs:
           exit 1
         }
 
-    # -------------------------------
-    # Start UI (Blazor WebAssembly)
-    # -------------------------------
-    - name: Publish and serve Blazor UI
-      shell: pwsh
-      run: |
         dotnet publish BankingSystem.UI/BankingSystem.UI.csproj -c Release -o publish
 
         # Use dotnet serve from published folder
