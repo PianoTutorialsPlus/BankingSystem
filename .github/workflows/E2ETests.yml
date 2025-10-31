@@ -99,6 +99,8 @@ jobs:
         }
         if (-not $ready) { Write-Error "UI never became ready"; exit 1 }
 
+        dotnet workload install wasm-tools
+
         # Run E2E tests
         dotnet test BankingSystem.E2ETests/ --configuration Release --no-build --verbosity normal --settings BankingSystem.E2ETests/BankingSystem.E2ETests.runsettings
 

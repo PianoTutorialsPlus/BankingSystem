@@ -23,12 +23,14 @@ public class LoginTests : PageTest
     [Test]
     public async Task Should_Login_Successfully()
     {
-        //var heading = await Page.TextContentAsync("h1");
-        //Assert.That(heading, Does.Contain("Welcome to Banking System"));
-
         // Navigate to login page
         await Page.GotoAsync($"{BaseUrl}/login");
-        await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+
+        // Wait until Blazor WebAssembly bootstraps (the blazor.webassembly.js finishes execution)
+        await Page.WaitForSelectorAsync("script[src*='blazor.webassembly.js']", new() { State = WaitForSelectorState.Detached });
+
+        // Wait until the main layout is rendered (for example, existence of a known element)
+        await Page.WaitForSelectorAsync("text=Login", new() { Timeout = 60000 });
 
         // Ensure fields are rendered
         await Expect(Page.Locator("#userName")).ToBeVisibleAsync();
@@ -44,8 +46,17 @@ public class LoginTests : PageTest
         // Wait for redirect to home/dashboard
         await Page.WaitForURLAsync("**/");
 
+
+        var heading = string.Empty;
         // Validate we landed on the welcome page
-        var heading = await Page.TextContentAsync("h1");
+        for (int i = 0; i < 10; i++)
+        {
+            heading = await Page.Locator("h1").TextContentAsync();
+            if (!string.IsNullOrEmpty(heading))
+                break;
+            await Task.Delay(1000);
+        }
+
         Assert.That(heading, Does.Contain("Welcome to Banking System"));
     }
 }
