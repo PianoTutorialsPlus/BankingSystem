@@ -26,6 +26,13 @@ jobs:
       run: dotnet build --configuration Release --no-restore
 
     # -------------------------------
+    # Install Playwright browsers
+    # -------------------------------
+    - name: Install Playwright browsers
+      shell: pwsh
+      run: ./BankingSystem.E2ETests/bin/Release/net8.0-windows/playwright.ps1 install --with-deps
+
+    # -------------------------------
     # Start API
     # -------------------------------
     - name: Start API
@@ -90,55 +97,10 @@ jobs:
           Write-Error "UI never became ready"
           exit 1
         }
+        dotnet test BankingSystem.E2ETests/ --configuration Release --no-build --verbosity normal --settings BankingSystem.E2ETests/BankingSystem.E2ETests.runsettings
 
-    - name: Wait for UI to start
-      shell: pwsh
-      run: |
-        $url = "http://localhost:7247"
-        $maxRetries = 30
-        $ready = $false
-        for ($i = 0; $i -lt $maxRetries; $i++) {
-          try {
-            $resp = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 5
-            if ($resp.StatusCode -eq 200) {
-              Write-Host "UI ready!"
-              $ready = $true
-              break
-            }
-          } catch {
-            Start-Sleep -Seconds 2
-          }
-        }
-        if (-not $ready) { Write-Error "UI never became ready"; exit 1 }
-
-
-    # -------------------------------
-    # Install Playwright browsers
-    # -------------------------------
-    - name: Install Playwright browsers
-      shell: pwsh
-      run: ./BankingSystem.E2ETests/bin/Release/net8.0-windows/playwright.ps1 install --with-deps
-
-
-    - name: Wait for UI to start
-      shell: pwsh
-      run: |
-        $url = "http://localhost:7247"
-        $maxRetries = 30
-        $ready = $false
-        for ($i = 0; $i -lt $maxRetries; $i++) {
-          try {
-            $resp = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 5
-            if ($resp.StatusCode -eq 200) {
-              Write-Host "UI ready!"
-              $ready = $true
-              break
-            }
-          } catch {
-            Start-Sleep -Seconds 2
-          }
-        }
-        if (-not $ready) { Write-Error "UI never became ready"; exit 1 }
+        # Keep the process reference to prevent it from being garbage collected
+        Write-Host "Server process id: $($server.Id)"
 
     # -------------------------------
     # Run E2E Tests
