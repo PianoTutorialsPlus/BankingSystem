@@ -33,7 +33,7 @@ public class LoginTests : PageTest
         await Page.WaitForURLAsync("**/");
 
         // Validate we landed on the welcome page
-        var heading = await Page.TextContentAsync("h1");
+        heading = await Page.TextContentAsync("h1");
         Assert.That(heading, Does.Contain("Welcome to Banking System"));
     }
 }
