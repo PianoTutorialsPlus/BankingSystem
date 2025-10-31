@@ -11,6 +11,9 @@ public class LoginTests : PageTest
     [Test]
     public async Task Should_Login_Successfully()
     {
+        var heading = await Page.TextContentAsync("h1");
+        Assert.That(heading, Does.Contain("Welcome to Banking System"));
+
         // Navigate to login page
         await Page.GotoAsync($"{BaseUrl}/login");
         await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
