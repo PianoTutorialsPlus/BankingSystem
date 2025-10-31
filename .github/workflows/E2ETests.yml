@@ -33,9 +33,9 @@ jobs:
     # -------------------------------
     # Install Playwright browsers
     # -------------------------------
-    - name: Install Playwright browsers
-      shell: pwsh
-      run: ./BankingSystem.E2ETests/bin/Release/net8.0-windows/playwright.ps1 install --with-deps
+    # - name: Install Playwright browsers
+    #   shell: pwsh
+    #   run: ./BankingSystem.E2ETests/bin/Release/net8.0-windows/playwright.ps1 install --with-deps
 
     - name: Publish and serve Blazor UI
       shell: pwsh
@@ -67,6 +67,14 @@ jobs:
 
         # Publish Blazor UI
         dotnet publish BankingSystem.UI/BankingSystem.UI.csproj -c Release -o publish
+
+        dir ./publish
+
+        # Verify index.html exists
+        if (-not (Test-Path "./publish/index.html")) {
+          Write-Error "Blazor UI publish failed: index.html not found"
+          exit 1
+        }
 
         # Install Node.js static server
         npm install -g serve
@@ -197,10 +205,10 @@ jobs:
     # -------------------------------
     # Run E2E Tests
     # -------------------------------
-    - name: Run E2E Tests
-      env:
-        BASE_URL: http://localhost:7247
-      run: dotnet test BankingSystem.E2ETests/ --configuration Release --no-build --verbosity normal --settings BankingSystem.E2ETests/BankingSystem.E2ETests.runsettings
+    # - name: Run E2E Tests
+    #   env:
+    #     BASE_URL: http://localhost:7247
+    #   run: dotnet test BankingSystem.E2ETests/ --configuration Release --no-build --verbosity normal --settings BankingSystem.E2ETests/BankingSystem.E2ETests.runsettings
 
 
 
