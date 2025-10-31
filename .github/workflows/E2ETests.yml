@@ -104,7 +104,14 @@ jobs:
         # Run E2E tests
         dotnet test BankingSystem.E2ETests/ --configuration Release --no-build --verbosity normal --settings BankingSystem.E2ETests/BankingSystem.E2ETests.runsettings
 
-
+    - name: Upload Playwright artifacts
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-screenshots
+        path: |
+          **/page.png
+          **/playwright-report
 
 
     # -------------------------------

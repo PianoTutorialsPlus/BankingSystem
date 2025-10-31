@@ -25,12 +25,7 @@ public class LoginTests : PageTest
     {
         // Navigate to login page
         await Page.GotoAsync($"{BaseUrl}/login");
-
-        // Wait until Blazor WebAssembly bootstraps (the blazor.webassembly.js finishes execution)
-        await Page.WaitForSelectorAsync("script[src*='blazor.webassembly.js']", new() { State = WaitForSelectorState.Detached });
-
-        // Wait until the main layout is rendered (for example, existence of a known element)
-        await Page.WaitForSelectorAsync("text=Login", new() { Timeout = 60000 });
+        await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         // Ensure fields are rendered
         await Expect(Page.Locator("#userName")).ToBeVisibleAsync();
@@ -45,7 +40,7 @@ public class LoginTests : PageTest
 
         // Wait for redirect to home/dashboard
         await Page.WaitForURLAsync("**/");
-
+        await Page.ScreenshotAsync(new PageScreenshotOptions { Path = "page.png", FullPage = true });
 
         var heading = string.Empty;
         // Validate we landed on the welcome page
