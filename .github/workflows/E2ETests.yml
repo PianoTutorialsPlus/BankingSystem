@@ -32,6 +32,66 @@ jobs:
       shell: pwsh
       run: ./BankingSystem.E2ETests/bin/Release/net8.0-windows/playwright.ps1 install --with-deps
 
+    - name: Publish and serve Blazor UI
+      shell: pwsh
+      env:
+        ASPNETCORE_ENVIRONMENT: CI
+      run: |
+        # Start API first
+        $apiProc = Start-Process dotnet `
+          -ArgumentList "run --project BankingSystem.Api/BankingSystem.Api.csproj --urls=http://localhost:7178 --no-launch-profile" `
+          -NoNewWindow -PassThru
+        Write-Host "Started API process ID: $($apiProc.Id)"
+
+        # Wait for API to become ready
+        $maxRetries = 30
+        $ready = $false
+        for ($i = 0; $i -lt $maxRetries; $i++) {
+          try {
+            $resp = Invoke-WebRequest -Uri "http://localhost:7178/health" -UseBasicParsing -TimeoutSec 5
+            if ($resp.StatusCode -eq 200) {
+              Write-Host "API ready!"
+              $ready = $true
+              break
+            }
+          } catch {
+            Start-Sleep -Seconds 2
+          }
+        }
+        if (-not $ready) { Write-Error "API never became ready"; exit 1 }
+
+        # Publish Blazor UI
+        dotnet publish BankingSystem.UI/BankingSystem.UI.csproj -c Release -o publish
+
+        # Install Node.js static server
+        npm install -g serve
+
+        # Serve the published UI with SPA fallback
+        Start-Process npx -ArgumentList "serve publish -l 7247 --single" -NoNewWindow -PassThru
+
+        # Wait for UI to become ready
+        $maxRetries = 30
+        $ready = $false
+        for ($i = 0; $i -lt $maxRetries; $i++) {
+          try {
+            $resp = Invoke-WebRequest -Uri "http://localhost:7247" -UseBasicParsing -TimeoutSec 5
+            if ($resp.StatusCode -eq 200) {
+              Write-Host "UI ready!"
+              $ready = $true
+              break
+            }
+          } catch {
+            Start-Sleep -Seconds 2
+          }
+        }
+        if (-not $ready) { Write-Error "UI never became ready"; exit 1 }
+
+        # Run E2E tests
+        dotnet test BankingSystem.E2ETests/ --configuration Release --no-build --verbosity normal --settings BankingSystem.E2ETests/BankingSystem.E2ETests.runsettings
+
+
+
+
     # -------------------------------
     # Start API
     # -------------------------------
@@ -68,66 +128,66 @@ jobs:
     # -------------------------------
     # Start UI (Blazor WebAssembly)
     # -------------------------------
-    - name: Publish and serve Blazor UI
-      shell: pwsh
-      env:
-        ASPNETCORE_ENVIRONMENT: CI
-      run: |
-        $apiProc = Start-Process dotnet `
-          -ArgumentList "run --project BankingSystem.Api/BankingSystem.Api.csproj --urls=http://localhost:7178 --no-launch-profile" `
-          -NoNewWindow -PassThru
-        Write-Host "Started API process ID: $($apiProc.Id)"
+    # - name: Publish and serve Blazor UI
+    #   shell: pwsh
+    #   env:
+    #     ASPNETCORE_ENVIRONMENT: CI
+    #   run: |
+    #     $apiProc = Start-Process dotnet `
+    #       -ArgumentList "run --project BankingSystem.Api/BankingSystem.Api.csproj --urls=http://localhost:7178 --no-launch-profile" `
+    #       -NoNewWindow -PassThru
+    #     Write-Host "Started API process ID: $($apiProc.Id)"
 
-        # Wait for API to become ready
-        $maxRetries = 30
-        $ready = $false
-        for ($i = 0; $i -lt $maxRetries; $i++) {
-          try {
-            $resp = Invoke-WebRequest -Uri "http://localhost:7178/health" -UseBasicParsing -TimeoutSec 5
-            if ($resp.StatusCode -eq 200) {
-              Write-Host "API ready!"
-              $ready = $true
-              break
-            }
-          } catch {
-            Start-Sleep -Seconds 2
-          }
-        }
-        if (-not $ready) {
-          Write-Error "API never became ready"
-          exit 1
-        }
+    #     # Wait for API to become ready
+    #     $maxRetries = 30
+    #     $ready = $false
+    #     for ($i = 0; $i -lt $maxRetries; $i++) {
+    #       try {
+    #         $resp = Invoke-WebRequest -Uri "http://localhost:7178/health" -UseBasicParsing -TimeoutSec 5
+    #         if ($resp.StatusCode -eq 200) {
+    #           Write-Host "API ready!"
+    #           $ready = $true
+    #           break
+    #         }
+    #       } catch {
+    #         Start-Sleep -Seconds 2
+    #       }
+    #     }
+    #     if (-not $ready) {
+    #       Write-Error "API never became ready"
+    #       exit 1
+    #     }
 
-        dotnet publish BankingSystem.UI/BankingSystem.UI.csproj -c Release -o publish
+    #     dotnet publish BankingSystem.UI/BankingSystem.UI.csproj -c Release -o publish
 
-        # Use dotnet serve from published folder
-        dotnet tool install --global dotnet-serve
-        $env:PATH += ";$env:USERPROFILE\.dotnet\tools"
-        Start-Process dotnet -ArgumentList "serve -d publish -p 7247" -NoNewWindow -PassThru
+    #     # Use dotnet serve from published folder
+    #     dotnet tool install --global dotnet-serve
+    #     $env:PATH += ";$env:USERPROFILE\.dotnet\tools"
+    #     Start-Process dotnet -ArgumentList "serve -d publish -p 7247" -NoNewWindow -PassThru
 
-        # Wait for UI to become ready
-        $maxRetries = 30
-        $ready = $false
-        for ($i = 0; $i -lt $maxRetries; $i++) {
-          try {
-            $resp = Invoke-WebRequest -Uri "http://localhost:7247" -UseBasicParsing -TimeoutSec 5
-            if ($resp.StatusCode -eq 200) {
-              Write-Host "UI ready!"
-              $ready = $true
-              break
-            }
-          } catch {
-            Start-Sleep -Seconds 2
-          }
-        }
-        if (-not $ready) {
-          Write-Error "UI never became ready"
-          exit 1
-        }
-        dotnet test BankingSystem.E2ETests/ --configuration Release --no-build --verbosity normal --settings BankingSystem.E2ETests/BankingSystem.E2ETests.runsettings
+    #     # Wait for UI to become ready
+    #     $maxRetries = 30
+    #     $ready = $false
+    #     for ($i = 0; $i -lt $maxRetries; $i++) {
+    #       try {
+    #         $resp = Invoke-WebRequest -Uri "http://localhost:7247" -UseBasicParsing -TimeoutSec 5
+    #         if ($resp.StatusCode -eq 200) {
+    #           Write-Host "UI ready!"
+    #           $ready = $true
+    #           break
+    #         }
+    #       } catch {
+    #         Start-Sleep -Seconds 2
+    #       }
+    #     }
+    #     if (-not $ready) {
+    #       Write-Error "UI never became ready"
+    #       exit 1
+    #     }
+    #     dotnet test BankingSystem.E2ETests/ --configuration Release --no-build --verbosity normal --settings BankingSystem.E2ETests/BankingSystem.E2ETests.runsettings
 
-        # Keep the process reference to prevent it from being garbage collected
-        Write-Host "Server process id: $($server.Id)"
+    #     # Keep the process reference to prevent it from being garbage collected
+    #     Write-Host "Server process id: $($server.Id)"
 
     # -------------------------------
     # Run E2E Tests
