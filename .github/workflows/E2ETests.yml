@@ -27,6 +27,8 @@ jobs:
 
 
       # - name: Start API and UI together
+    - name: Publish Blazor WebAssembly
+      run: dotnet publish BankingSystem.UI/BankingSystem.UI.csproj -c Release -o BankingSystem.Api/wwwroot
 
     - name: Start API and wait
       shell: pwsh
