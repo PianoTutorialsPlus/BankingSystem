@@ -11,6 +11,18 @@ public class LoginTests : PageTest
     [Test]
     public async Task Should_Login_Successfully()
     {
+        await Page.GotoAsync(BaseUrl);
+        await Page.ScreenshotAsync(new PageScreenshotOptions { Path = "page.png", FullPage = true });
+        var content = await Page.ContentAsync();
+        Console.WriteLine(content.Substring(0, Math.Min(2000, content.Length)));
+
+        var heading = await Page.Locator("h1").TextContentAsync();
+        Assert.That(heading, Does.Contain("Welcome to Banking System"));
+    }
+
+    [Test]
+    public async Task Should_Login_Successfully()
+    {
         //var heading = await Page.TextContentAsync("h1");
         //Assert.That(heading, Does.Contain("Welcome to Banking System"));
 
