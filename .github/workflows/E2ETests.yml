@@ -33,47 +33,39 @@ jobs:
         $proc = Start-Process dotnet `
           -ArgumentList "run --project BankingSystem.Api/BankingSystem.Api.csproj --urls=http://localhost:7178 --no-launch-profile" `
           -NoNewWindow -PassThru
-        Write-Host "Waiting for API to be ready..."
-        $maxRetries = 60
-        $ready = $false
-        for ($i=0; $i -lt $maxRetries; $i++) {
-          try {
-            $resp = Invoke-WebRequest -Uri "http://localhost:7178/health" -UseBasicParsing -TimeoutSec 5
-            Write-Host "Response status: $($resp.StatusCode)"
-            if ($resp.StatusCode -eq 200) {
-              Write-Host "✅ API ready!"
-              $ready = $true
-              break
-            }
-          } catch {
-            Write-Host "Attempt $i failed: $($_.Exception.Message)"
-            Start-Sleep -Seconds 2
-          }
-        }
-        if (-not $ready) { Write-Error "API never became ready"; exit 1 }
+        # Write-Host "Waiting for API to be ready..."
+        # $maxRetries = 60
+        # $ready = $false
+        # for ($i=0; $i -lt $maxRetries; $i++) {
+        #   try {
+        #     $resp = Invoke-WebRequest -Uri "http://localhost:7178/health" -UseBasicParsing -TimeoutSec 5
+        #     Write-Host "Response status: $($resp.StatusCode)"
+        #     if ($resp.StatusCode -eq 200) {
+        #       Write-Host "✅ API ready!"
+        #       $ready = $true
+        #       break
+        #     }
+        #   } catch {
+        #     Write-Host "Attempt $i failed: $($_.Exception.Message)"
+        #     Start-Sleep -Seconds 2
+        #   }
+        # }
+        # if (-not $ready) { Write-Error "API never became ready"; exit 1 }
 
     - name: Start UI with logging
       shell: pwsh
       run: |
-        $uiOutLog = "$env:GITHUB_WORKSPACE\ui_out.log"
-        $uiErrLog = "$env:GITHUB_WORKSPACE\ui_err.log"
         Write-Host "UI stdout: $uiOutLog, stderr: $uiErrLog"
         $ui = Start-Process dotnet `
             -ArgumentList "run --project BankingSystem.UI/BankingSystem.UI.csproj --urls=http://localhost:7247" `
-            -RedirectStandardOutput $uiOutLog `
-            -RedirectStandardError $uiErrLog `
             -NoNewWindow -PassThru
-        Write-Host "Started UI process Id: $($ui.Id)"
-        Start-Sleep -Seconds 60
-        Get-Content $uiOutLog -Tail 10
-        Get-Content $uiErrLog -Tail 10
 
     - name: Wait for API and UI to start
       shell: pwsh
       run: |
         $urls = @(
-          "http://localhost:7247/"   # UI
-          "http://localhost:7178/health",  # API
+          "http://localhost:7247/",   # UI
+          "http://localhost:7178/health"  # API
         )
         foreach ($url in $urls) {
           Write-Host "Waiting for $url..."
