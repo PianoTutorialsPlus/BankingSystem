@@ -33,7 +33,6 @@ jobs:
       env:
         ASPNETCORE_ENVIRONMENT: CI
       run: |
-        $env:ASPNETCORE_ENVIRONMENT = "Development"
         $apiProc = Start-Process dotnet `
           -ArgumentList "run --project BankingSystem.Api/BankingSystem.Api.csproj --urls=http://localhost:7178 --no-launch-profile" `
           -NoNewWindow -PassThru
