@@ -9,7 +9,7 @@ public class LoginTests : PageTest
     private string BaseUrl => TestContext.Parameters.Get("E2E_BaseUrl")!; // or your test environment
 
     [Test]
-    public async Task Should_Login_Successfully()
+    public async Task Pre_Should_Login_Successfully()
     {
         await Page.GotoAsync(BaseUrl);
         await Page.ScreenshotAsync(new PageScreenshotOptions { Path = "page.png", FullPage = true });
