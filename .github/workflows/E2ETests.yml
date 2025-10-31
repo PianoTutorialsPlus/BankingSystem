@@ -25,6 +25,9 @@ jobs:
     - name: Build all projects
       run: dotnet build --configuration Release --no-restore
 
+
+      # - name: Start API and UI together
+
     - name: Start API and wait
       shell: pwsh
       env:
@@ -52,31 +55,31 @@ jobs:
         }
         if (-not $ready) { Write-Error "API never became ready"; exit 1 }
 
-    - name: Start UI with logging
-      shell: pwsh
-      run: |
-        Write-Host "UI stdout: $uiOutLog, stderr: $uiErrLog"
-        $ui = Start-Process dotnet `
-            -ArgumentList "run --project BankingSystem.UI/BankingSystem.UI.csproj --urls=http://localhost:7247" `
-            -NoNewWindow -PassThru
-        Write-Host "Waiting for API to be ready..."
-        $maxRetries = 60
-        $ready = $false
-        for ($i=0; $i -lt $maxRetries; $i++) {
-          try {
-            $resp = Invoke-WebRequest -Uri "http://localhost:7247" -UseBasicParsing -TimeoutSec 5
-            Write-Host "Response status: $($resp.StatusCode)"
-            if ($resp.StatusCode -eq 200) {
-              Write-Host "✅ API ready!"
-              $ready = $true
-              break
-            }
-          } catch {
-            Write-Host "Attempt $i failed: $($_.Exception.Message)"
-            Start-Sleep -Seconds 2
-          }
-        }
-        if (-not $ready) { Write-Error "API never became ready"; exit 1 }
+    # - name: Start UI with logging
+    #   shell: pwsh
+    #   run: |
+    #     Write-Host "UI stdout: $uiOutLog, stderr: $uiErrLog"
+    #     $ui = Start-Process dotnet `
+    #         -ArgumentList "run --project BankingSystem.UI/BankingSystem.UI.csproj --urls=http://localhost:7247" --no-launch-profile" `
+    #         -NoNewWindow -PassThru
+    #     Write-Host "Waiting for API to be ready..."
+    #     $maxRetries = 60
+    #     $ready = $false
+    #     for ($i=0; $i -lt $maxRetries; $i++) {
+    #       try {
+    #         $resp = Invoke-WebRequest -Uri "http://localhost:7247" -UseBasicParsing -TimeoutSec 5
+    #         Write-Host "Response status: $($resp.StatusCode)"
+    #         if ($resp.StatusCode -eq 200) {
+    #           Write-Host "✅ API ready!"
+    #           $ready = $true
+    #           break
+    #         }
+    #       } catch {
+    #         Write-Host "Attempt $i failed: $($_.Exception.Message)"
+    #         Start-Sleep -Seconds 2
+    #       }
+    #     }
+    #     if (-not $ready) { Write-Error "API never became ready"; exit 1 }
 
     # - name: Wait for API and UI to start
     #   shell: pwsh
