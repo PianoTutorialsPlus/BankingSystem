@@ -25,6 +25,11 @@ jobs:
     - name: Build projects
       run: dotnet build --configuration Release --no-restore
 
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 20.x
+
     # -------------------------------
     # Install Playwright browsers
     # -------------------------------
