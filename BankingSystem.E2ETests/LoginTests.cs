@@ -11,8 +11,8 @@ public class LoginTests : PageTest
     [Test]
     public async Task Should_Login_Successfully()
     {
-        var heading = await Page.TextContentAsync("h1");
-        Assert.That(heading, Does.Contain("Welcome to Banking System"));
+        //var heading = await Page.TextContentAsync("h1");
+        //Assert.That(heading, Does.Contain("Welcome to Banking System"));
 
         // Navigate to login page
         await Page.GotoAsync($"{BaseUrl}/login");
@@ -33,7 +33,7 @@ public class LoginTests : PageTest
         await Page.WaitForURLAsync("**/");
 
         // Validate we landed on the welcome page
-        heading = await Page.TextContentAsync("h1");
+        var heading = await Page.TextContentAsync("h1");
         Assert.That(heading, Does.Contain("Welcome to Banking System"));
     }
 }
