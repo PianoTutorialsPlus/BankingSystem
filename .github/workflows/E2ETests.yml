@@ -22,113 +22,85 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
 
-    - name: Build all projects
+    - name: Build projects
       run: dotnet build --configuration Release --no-restore
 
-
-      # - name: Start API and UI together
-    - name: Publish Blazor WebAssembly
-      run: dotnet publish BankingSystem.UI/BankingSystem.UI.csproj -c Release -o BankingSystem.Api/wwwroot
-
-    - name: List published wwwroot
-      run: dir BankingSystem.Api/wwwroot
-
-    - name: Start API and wait
+    # -------------------------------
+    # Start API
+    # -------------------------------
+    - name: Start API
       shell: pwsh
-      env:
-        ASPNETCORE_ENVIRONMENT: CI
       run: |
-        $proc = Start-Process dotnet `
+        $env:ASPNETCORE_ENVIRONMENT = "Development"
+        $apiProc = Start-Process dotnet `
           -ArgumentList "run --project BankingSystem.Api/BankingSystem.Api.csproj --urls=http://localhost:7178 --no-launch-profile" `
           -NoNewWindow -PassThru
-        Write-Host "Waiting for API to be ready..."
-        $maxRetries = 60
+        Write-Host "Started API process ID: $($apiProc.Id)"
+
+        # Wait for API to become ready
+        $maxRetries = 30
         $ready = $false
-        for ($i=0; $i -lt $maxRetries; $i++) {
+        for ($i = 0; $i -lt $maxRetries; $i++) {
           try {
-            $resp = Invoke-WebRequest -Uri "http://localhost:7178/health" -UseBasicParsing -TimeoutSec 5
-            Write-Host "Response status: $($resp.StatusCode)"
+            $resp = Invoke-WebRequest -Uri "http://localhost:7178" -UseBasicParsing -TimeoutSec 5
             if ($resp.StatusCode -eq 200) {
-              Write-Host "✅ API ready!"
+              Write-Host "API ready!"
               $ready = $true
               break
             }
           } catch {
-            Write-Host "Attempt $i failed: $($_.Exception.Message)"
             Start-Sleep -Seconds 2
           }
         }
-        if (-not $ready) { Write-Error "API never became ready"; exit 1 }
+        if (-not $ready) {
+          Write-Error "API never became ready"
+          exit 1
+        }
 
-    # - name: Start UI with logging
-    #   shell: pwsh
-    #   run: |
-    #     Write-Host "UI stdout: $uiOutLog, stderr: $uiErrLog"
-    #     $ui = Start-Process dotnet `
-    #         -ArgumentList "run --project BankingSystem.UI/BankingSystem.UI.csproj --urls=http://localhost:7247" --no-launch-profile" `
-    #         -NoNewWindow -PassThru
-    #     Write-Host "Waiting for API to be ready..."
-    #     $maxRetries = 60
-    #     $ready = $false
-    #     for ($i=0; $i -lt $maxRetries; $i++) {
-    #       try {
-    #         $resp = Invoke-WebRequest -Uri "http://localhost:7247" -UseBasicParsing -TimeoutSec 5
-    #         Write-Host "Response status: $($resp.StatusCode)"
-    #         if ($resp.StatusCode -eq 200) {
-    #           Write-Host "✅ API ready!"
-    #           $ready = $true
-    #           break
-    #         }
-    #       } catch {
-    #         Write-Host "Attempt $i failed: $($_.Exception.Message)"
-    #         Start-Sleep -Seconds 2
-    #       }
-    #     }
-    #     if (-not $ready) { Write-Error "API never became ready"; exit 1 }
+    # -------------------------------
+    # Start UI (Blazor WebAssembly)
+    # -------------------------------
+    - name: Publish and serve Blazor UI
+      shell: pwsh
+      run: |
+        dotnet publish BankingSystem.UI/BankingSystem.UI.csproj -c Release -o publish
 
-    # - name: Wait for API and UI to start
-    #   shell: pwsh
-    #   run: |
-    #     $urls = @(
-    #       "http://localhost:7178/health", # API
-    #       "http://localhost:7247/"   # UI
-    #     )
-    #     foreach ($url in $urls) {
-    #       Write-Host "Waiting for $url..."
-    #       $maxRetries = 30
-    #       $ready = $false
-    #       for ($i=0; $i -lt $maxRetries; $i++) {
-    #         try {
-    #           $response = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 5
-    #           if ($response.StatusCode -eq 200) {
-    #             Write-Host "$url is ready!"
-    #             $ready = $true
-    #             break
-    #           }
-    #         } catch {
-    #           Start-Sleep -Seconds 2
-    #         }
-    #       }
-    #       if (-not $ready) {
-    #         Write-Error "Timeout waiting for $url"
-    #         exit 1
-    #       }
-    #     }
+        # Use dotnet serve from published folder
+        dotnet tool install --global dotnet-serve
+        $env:PATH += ";$env:USERPROFILE\.dotnet\tools"
+        Start-Process dotnet -ArgumentList "serve -d publish -p 7247" -NoNewWindow -PassThru
 
+        # Wait for UI to become ready
+        $maxRetries = 30
+        $ready = $false
+        for ($i = 0; $i -lt $maxRetries; $i++) {
+          try {
+            $resp = Invoke-WebRequest -Uri "http://localhost:7247" -UseBasicParsing -TimeoutSec 5
+            if ($resp.StatusCode -eq 200) {
+              Write-Host "UI ready!"
+              $ready = $true
+              break
+            }
+          } catch {
+            Start-Sleep -Seconds 2
+          }
+        }
+        if (-not $ready) {
+          Write-Error "UI never became ready"
+          exit 1
+        }
+
+    # -------------------------------
+    # Install Playwright browsers
+    # -------------------------------
     - name: Install Playwright browsers
       shell: pwsh
       run: ./BankingSystem.E2ETests/bin/Release/net8.0-windows/playwright.ps1 install --with-deps
 
+    # -------------------------------
+    # Run E2E Tests
+    # -------------------------------
     - name: Run E2E Tests
       env:
-        BASE_URL: http://localhost:7178
+        BASE_URL: http://localhost:7247
       run: dotnet test BankingSystem.E2ETests/ --configuration Release --no-build --verbosity normal --settings BankingSystem.E2ETests/BankingSystem.E2ETests.runsettings
-
-    - name: Upload Playwright artifacts
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: playwright-screenshots
-        path: |
-          **/page.png
-          **/playwright-report
