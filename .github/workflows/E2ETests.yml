@@ -38,7 +38,7 @@ jobs:
         $ready = $false
         for ($i=0; $i -lt $maxRetries; $i++) {
           try {
-            $resp = Invoke-WebRequest -Uri "http://localhost:7178/swagger/index.html" -UseBasicParsing -TimeoutSec 5
+            $resp = Invoke-WebRequest -Uri "http://localhost:7178/health" -UseBasicParsing -TimeoutSec 5
             Write-Host "Response status: $($resp.StatusCode)"
             if ($resp.StatusCode -eq 200) {
               Write-Host "✅ API ready!"
@@ -72,8 +72,8 @@ jobs:
       shell: pwsh
       run: |
         $urls = @(
-          "http://localhost:7178",  # API
-          "http://localhost:7247"   # UI
+          "http://localhost:7247/"   # UI
+          "http://localhost:7178/health",  # API
         )
         foreach ($url in $urls) {
           Write-Host "Waiting for $url..."
