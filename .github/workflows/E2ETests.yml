@@ -64,8 +64,8 @@ jobs:
       shell: pwsh
       run: |
         $urls = @(
-          "http://localhost:7247/",   # UI
-          "http://localhost:7178/health"  # API
+          "http://localhost:7178/health", # API
+          "http://localhost:7247/"   # UI
         )
         foreach ($url in $urls) {
           Write-Host "Waiting for $url..."
@@ -84,8 +84,6 @@ jobs:
             }
           }
           if (-not $ready) {
-            Get-Content $env:GITHUB_WORKSPACE\api_out.log -Tail 10
-            Get-Content $env:GITHUB_WORKSPACE\ui_out.log -Tail 10
             Write-Error "Timeout waiting for $url"
             exit 1
           }
