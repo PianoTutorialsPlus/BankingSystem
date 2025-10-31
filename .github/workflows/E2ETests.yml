@@ -66,7 +66,7 @@ jobs:
         if (-not $ready) { Write-Error "API never became ready"; exit 1 }
 
         # Publish Blazor UI
-        dotnet publish BankingSystem.UI/BankingSystem.UI.csproj -c Release -o publish
+        dotnet publish BankingSystem.UI/BankingSystem.UI.csproj -c Release -o publish -f net8.0
 
         dir ./publish
 
