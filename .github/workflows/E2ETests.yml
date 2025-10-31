@@ -68,10 +68,10 @@ jobs:
         # Publish Blazor UI
         dotnet publish BankingSystem.WebUI/BankingSystem.WebUI.csproj -c Release -o publish
 
-        dir ./publish
+        dir ./publish/wwwroot
 
         # Verify index.html exists
-        if (-not (Test-Path "./publish/index.html")) {
+        if (-not (Test-Path "./publish/wwwroot/index.html")) {
           Write-Error "Blazor UI publish failed: index.html not found"
           exit 1
         }
@@ -79,8 +79,8 @@ jobs:
         # Install Node.js static server
         npm install -g serve
 
-        # Serve the published UI with SPA fallback
-        Start-Process npx -ArgumentList "serve publish -l 7247 --single" -NoNewWindow -PassThru
+        # Serve the published WebAssembly UI
+        Start-Process npx -ArgumentList "serve publish/wwwroot -l 7247 --single" -NoNewWindow -PassThru
 
         # Wait for UI to become ready
         $maxRetries = 30
