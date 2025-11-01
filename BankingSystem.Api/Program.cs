@@ -51,11 +51,29 @@ var app = builder.Build();
 
 app.UseMiddleware<ExceptionMiddleware>();
 
-// Migrate/Ensure DB
-using (var sc = app.Services.CreateScope())
+// --- Ensure and/or migrate databases ---
+using (var scope = app.Services.CreateScope())
 {
-    var db = sc.ServiceProvider.GetRequiredService<BankingDbContext>();
-    db.Database.EnsureCreated();
+    var services = scope.ServiceProvider;
+
+    // --- Main app database ---
+    var appDb = services.GetRequiredService<BankingDbContext>();
+    appDb.Database.EnsureCreated();
+
+    // --- Identity database ---
+    var identityDb = services.GetRequiredService<BankingSystemDbContext>();
+
+    if (app.Environment.IsEnvironment("CI"))
+    {
+        // Clean rebuild for CI (ensures seeded users/roles exist)
+        identityDb.Database.EnsureDeleted();
+        identityDb.Database.Migrate();
+    }
+    else
+    {
+        // Local/dev/staging
+        identityDb.Database.Migrate();
+    }
 }
 
 if (app.Environment.IsDevelopment())
@@ -69,15 +87,6 @@ app.UseCors("AllowBlazorClient");
 if (!app.Environment.IsEnvironment("CI"))
 {
     app.UseHttpsRedirection();
-}
-
-if (app.Environment.IsEnvironment("CI"))
-{
-    using var scope = app.Services.CreateScope();
-    var db = scope.ServiceProvider.GetRequiredService<BankingSystemDbContext>();
-
-    // Ensure DB + seed data exist
-    db.Database.Migrate();
 }
 
 app.UseAuthentication();
