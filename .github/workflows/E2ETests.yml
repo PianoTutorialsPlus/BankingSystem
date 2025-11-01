@@ -47,6 +47,11 @@ jobs:
       env:
         ASPNETCORE_ENVIRONMENT: CI
       run: |
+    
+        
+        dotnet tool install --global dotnet-ef
+        dotnet ef database update --project BankingSystem.Identity/BankingSystem.Identity.csproj --context BankingSystemDbContext
+
         # Start API first
         $apiProc = Start-Process dotnet `
           -ArgumentList "run --project BankingSystem.Api/BankingSystem.Api.csproj --urls=http://localhost:7178 --no-launch-profile" `
