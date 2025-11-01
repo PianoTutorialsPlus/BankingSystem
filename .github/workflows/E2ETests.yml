@@ -78,6 +78,10 @@ jobs:
 
         dir  ./BankingSystem.Api
 
+        # List all tables in the SQLite database
+        $tables = & sqlite3 db_bankingSystem.db ".tables"
+        Write-Host "Tables in DB: $tables"
+
         # List all users
         $id = & sqlite3 db_bankingSystem.db "SELECT Id, Email FROM Customers;"
         Write-Host "Users in DB:`n$id"
