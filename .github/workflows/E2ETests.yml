@@ -38,9 +38,9 @@ jobs:
     # -------------------------------
     # Install Playwright browsers
     # -------------------------------
-    - name: Install Playwright browsers
-      shell: pwsh
-      run: ./BankingSystem.E2ETests/bin/Release/net8.0-windows/playwright.ps1 install --with-deps
+    # - name: Install Playwright browsers
+    #   shell: pwsh
+    #   run: ./BankingSystem.E2ETests/bin/Release/net8.0-windows/playwright.ps1 install --with-deps
 
     - name: Publish and serve Blazor UI
       shell: pwsh
@@ -69,6 +69,8 @@ jobs:
           }
         }
         if (-not $ready) { Write-Error "API never became ready"; exit 1 }
+
+        dir
 
         # Publish Blazor UI
         dotnet publish BankingSystem.WebUI/BankingSystem.WebUI.csproj -c Release -o publish

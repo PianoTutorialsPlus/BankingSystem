@@ -5,7 +5,6 @@ using BankingSystem.Application.DI;
 using BankingSystem.Application.Interfaces;
 using BankingSystem.Identity.DbContext;
 using BankingSystem.Identity.DI;
-using BankingSystem.Identity.Models;
 using BankingSystem.Persistence.DatabaseContext;
 using BankingSystem.Persistence.DI;
 using BankingSystem.Persistence.Services;
