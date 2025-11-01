@@ -58,22 +58,11 @@ using (var scope = app.Services.CreateScope())
 
     // --- Main app database ---
     var appDb = services.GetRequiredService<BankingDbContext>();
-    appDb.Database.EnsureCreated();
+    appDb.Database.Migrate();
 
     // --- Identity database ---
     var identityDb = services.GetRequiredService<BankingSystemDbContext>();
-
-    if (app.Environment.IsEnvironment("CI"))
-    {
-        // Clean rebuild for CI (ensures seeded users/roles exist)
-        identityDb.Database.EnsureDeleted();
-        identityDb.Database.Migrate();
-    }
-    else
-    {
-        // Local/dev/staging
-        identityDb.Database.Migrate();
-    }
+    identityDb.Database.Migrate();
 }
 
 if (app.Environment.IsDevelopment())
