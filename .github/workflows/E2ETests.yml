@@ -32,7 +32,8 @@ jobs:
 
     - name: Set up environment
       run: |
-        echo "ConnectionStrings__HrDatabaseConnectionString=Data Source=$(pwd)/db_bankingSystem.db" >> $GITHUB_ENV
+        $absPath = "$(pwd)/db_bankingSystem.db"
+        echo "ConnectionStrings__HrDatabaseConnectionString=Data Source=$absPath" >> $GITHUB_ENV
         dotnet tool install --global dotnet-ef
         choco install sqlite -y
         # Install Node.js static server
@@ -78,13 +79,12 @@ jobs:
 
         dir  ./BankingSystem.Api
 
-        # List all tables in the SQLite database
-        $tables = & sqlite3 db_bankingSystem.db ".tables"
+        $DBPath = "$(pwd)/db_bankingSystem.db"
+        $tables = & sqlite3 $DBPath ".tables"
         Write-Host "Tables in DB: $tables"
 
-        # List all users
-        $id = & sqlite3 db_bankingSystem.db "SELECT Id, Email FROM Customers;"
-        Write-Host "Users in DB:`n$id"
+        $users = & sqlite3 $DBPath "SELECT UserName, Email FROM AspNetUsers;"
+        Write-Host "Users in DB:`n$users"
 
         # List all users
         $users = & sqlite3 db_bankingSystem.db "SELECT UserName, Email FROM AspNetUsers;"
