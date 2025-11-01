@@ -33,7 +33,8 @@ jobs:
     - name: Set up environment
       run: |
         echo "ConnectionStrings__HrDatabaseConnectionString=Data Source=$(pwd)/db_bankingSystem.db" >> $GITHUB_ENV
-
+        dotnet tool install --global dotnet-ef
+        choco install sqlite -y
 
     # -------------------------------
     # Install Playwright browsers
@@ -47,9 +48,7 @@ jobs:
       env:
         ASPNETCORE_ENVIRONMENT: CI
       run: |
-    
         
-        dotnet tool install --global dotnet-ef
         dotnet ef database update --project BankingSystem.Identity/BankingSystem.Identity.csproj --context BankingSystemDbContext
 
         # Start API first
@@ -77,7 +76,9 @@ jobs:
 
         dir  ./BankingSystem.Api
 
-        choco install sqlite -y
+        # List all users
+        $id = & sqlite3 db_bankingSystem.db "SELECT Id, Email FROM Customers;"
+        Write-Host "Users in DB:`n$id"
 
         # List all users
         $users = & sqlite3 db_bankingSystem.db "SELECT UserName, Email FROM AspNetUsers;"
