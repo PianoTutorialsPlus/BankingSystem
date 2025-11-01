@@ -72,6 +72,16 @@ jobs:
 
         dir  ./BankingSystem.Api
 
+        choco install sqlite -y
+
+        # List all users
+        $users = & sqlite3 db_bankingSystem.db "SELECT UserName, Email FROM AspNetUsers;"
+        Write-Host "Users in DB:`n$users"
+
+        # List roles
+        $roles = & sqlite3 db_bankingSystem.db "SELECT Name FROM AspNetRoles;"
+        Write-Host "Roles in DB:`n$roles"
+
         # Publish Blazor UI
         dotnet publish BankingSystem.WebUI/BankingSystem.WebUI.csproj -c Release -o publish
 
