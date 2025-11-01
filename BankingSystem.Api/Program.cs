@@ -66,67 +66,67 @@ using (var scope = app.Services.CreateScope())
     identityDb.Database.Migrate();
 }
 
-if (app.Environment.IsEnvironment("CI"))
-{
-    using var scope = app.Services.CreateScope();
-    var db = scope.ServiceProvider.GetRequiredService<BankingSystemDbContext>();
-    db.Database.Migrate(); // creates tables including Identity tables
+//if (app.Environment.IsEnvironment("CI"))
+//{
+//    using var scope = app.Services.CreateScope();
+//    var db = scope.ServiceProvider.GetRequiredService<BankingSystemDbContext>();
+//    db.Database.Migrate(); // creates tables including Identity tables
 
 
-    // Seed users/roles automatically
-    var hasher = new PasswordHasher<ApplicationUser>();
-    if (!db.Users.Any())
-    {
-        db.Users.AddRange(
-            new ApplicationUser
-            {
-                Id = "918043f8-d092-4b9d-be3e-63eae8307e2b",
-                UserName = "admin@localhost.com",
-                NormalizedUserName = "ADMIN@LOCALHOST.COM",
-                Email = "admin@localhost.com",
-                NormalizedEmail = "ADMIN@LOCALHOST.COM",
-                EmailConfirmed = true,
-                PasswordHash = hasher.HashPassword(null, "P@ssword1")
-            },
-            new ApplicationUser
-            {
-                Id = "a2634141-eb89-4438-a70e-ad8f3ecbfe9b",
-                UserName = "user@localhost.com",
-                NormalizedUserName = "USER@LOCALHOST.COM",
-                Email = "user@localhost.com",
-                NormalizedEmail = "USER@LOCALHOST.COM",
-                EmailConfirmed = true,
-                PasswordHash = hasher.HashPassword(null, "P@ssword1")
-            });
-    }
+//    // Seed users/roles automatically
+//    var hasher = new PasswordHasher<ApplicationUser>();
+//    if (!db.Users.Any())
+//    {
+//        db.Users.AddRange(
+//            new ApplicationUser
+//            {
+//                Id = "918043f8-d092-4b9d-be3e-63eae8307e2b",
+//                UserName = "admin@localhost.com",
+//                NormalizedUserName = "ADMIN@LOCALHOST.COM",
+//                Email = "admin@localhost.com",
+//                NormalizedEmail = "ADMIN@LOCALHOST.COM",
+//                EmailConfirmed = true,
+//                PasswordHash = hasher.HashPassword(null, "P@ssword1")
+//            },
+//            new ApplicationUser
+//            {
+//                Id = "a2634141-eb89-4438-a70e-ad8f3ecbfe9b",
+//                UserName = "user@localhost.com",
+//                NormalizedUserName = "USER@LOCALHOST.COM",
+//                Email = "user@localhost.com",
+//                NormalizedEmail = "USER@LOCALHOST.COM",
+//                EmailConfirmed = true,
+//                PasswordHash = hasher.HashPassword(null, "P@ssword1")
+//            });
+//    }
 
-    if (!db.Roles.Any())
-    {
-        db.Roles.AddRange(
-            new IdentityRole { Id = "2a95a9cd-c232-443a-a6d2-c613be45185b", Name = "Employee", NormalizedName = "EMPLOYEE" },
-            new IdentityRole { Id = "f701d759-adf9-47cd-8f22-5b21e9c52ac9", Name = "Administrator", NormalizedName = "ADMIN" }
-        );
-    }
+//    if (!db.Roles.Any())
+//    {
+//        db.Roles.AddRange(
+//            new IdentityRole { Id = "2a95a9cd-c232-443a-a6d2-c613be45185b", Name = "Employee", NormalizedName = "EMPLOYEE" },
+//            new IdentityRole { Id = "f701d759-adf9-47cd-8f22-5b21e9c52ac9", Name = "Administrator", NormalizedName = "ADMIN" }
+//        );
+//    }
 
-    if (!db.UserRoles.Any())
-    {
-        db.UserRoles.AddRange(
-        new IdentityUserRole<string>
-        {
-            // user
-            RoleId = "2a95a9cd-c232-443a-a6d2-c613be45185b",
-            UserId = "a2634141-eb89-4438-a70e-ad8f3ecbfe9b"
-        },
-        new IdentityUserRole<string>
-        {
-            // admin
-            RoleId = "f701d759-adf9-47cd-8f22-5b21e9c52ac9",
-            UserId = "918043f8-d092-4b9d-be3e-63eae8307e2b"
-        });
-    }
+//    if (!db.UserRoles.Any())
+//    {
+//        db.UserRoles.AddRange(
+//        new IdentityUserRole<string>
+//        {
+//            // user
+//            RoleId = "2a95a9cd-c232-443a-a6d2-c613be45185b",
+//            UserId = "a2634141-eb89-4438-a70e-ad8f3ecbfe9b"
+//        },
+//        new IdentityUserRole<string>
+//        {
+//            // admin
+//            RoleId = "f701d759-adf9-47cd-8f22-5b21e9c52ac9",
+//            UserId = "918043f8-d092-4b9d-be3e-63eae8307e2b"
+//        });
+//    }
 
-        db.SaveChanges();
-    }
+//        db.SaveChanges();
+//    }
 
     if (app.Environment.IsDevelopment())
     {
