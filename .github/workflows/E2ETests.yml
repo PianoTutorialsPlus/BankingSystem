@@ -108,7 +108,7 @@ jobs:
 
         # Write-Host "UI stdout: $uiOutLog, stderr: $uiErrLog"
         $ui = Start-Process dotnet `
-            -ArgumentList "run --project BankingSystem.WebUI/BankingSystem.WebUI.csproj --urls=http://localhost:7247" --no-launch-profile" `
+            -ArgumentList "run --project BankingSystem.WebUI/BankingSystem.WebUI.csproj --urls=http://localhost:7247 --no-launch-profile" `
             -NoNewWindow -PassThru
 
 
