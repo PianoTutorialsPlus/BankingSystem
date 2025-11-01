@@ -30,6 +30,11 @@ jobs:
       with:
         node-version: 20.x
 
+    - name: Set up environment
+      run: |
+        echo "ConnectionStrings__HrDatabaseConnectionString=Data Source=$(pwd)/db_bankingSystem.db" >> $GITHUB_ENV
+
+
     # -------------------------------
     # Install Playwright browsers
     # -------------------------------
