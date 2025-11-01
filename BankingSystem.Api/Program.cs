@@ -108,27 +108,44 @@ if (app.Environment.IsEnvironment("CI"))
         );
     }
 
-    db.SaveChanges();
-}
+    if (!db.UserRoles.Any())
+    {
+        db.UserRoles.AddRange(
+        new IdentityUserRole<string>
+        {
+            // user
+            RoleId = "2a95a9cd-c232-443a-a6d2-c613be45185b",
+            UserId = "a2634141-eb89-4438-a70e-ad8f3ecbfe9b"
+        },
+        new IdentityUserRole<string>
+        {
+            // admin
+            RoleId = "f701d759-adf9-47cd-8f22-5b21e9c52ac9",
+            UserId = "918043f8-d092-4b9d-be3e-63eae8307e2b"
+        }
+);
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+        db.SaveChanges();
+    }
 
-app.UseCors("AllowBlazorClient");
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
 
-if (!app.Environment.IsEnvironment("CI"))
-{
-    app.UseHttpsRedirection();
-}
+    app.UseCors("AllowBlazorClient");
 
-app.UseAuthentication();
-app.UseAuthorization();
+    if (!app.Environment.IsEnvironment("CI"))
+    {
+        app.UseHttpsRedirection();
+    }
 
-app.MapControllers();
-app.MapGet("/health", () => Results.Ok("Healthy"));
+    app.UseAuthentication();
+    app.UseAuthorization();
 
-app.Run();
+    app.MapControllers();
+    app.MapGet("/health", () => Results.Ok("Healthy"));
+
+    app.Run();
 
