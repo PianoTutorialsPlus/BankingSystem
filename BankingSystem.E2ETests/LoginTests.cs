@@ -1,4 +1,6 @@
-﻿using Microsoft.Playwright;
+﻿using BankingSystem.WebUI.Services.Base;
+using Microsoft.Playwright;
+using System.Net.Http;
 
 namespace BankingSystem.E2ETests;
 
@@ -7,6 +9,26 @@ namespace BankingSystem.E2ETests;
 public class LoginTests : PageTest
 {
     private string BaseUrl => TestContext.Parameters.Get("E2E_BaseUrl")!; // or your test environment
+    private  string ApiUrl => TestContext.Parameters.Get("E2E_ApiUrl")!;
+    private HttpClient _client = new();
+
+    [Test]
+    public async Task Api_Should_Be_Reachable()
+    {
+
+        var httpClient = new HttpClient
+        {
+            BaseAddress = new Uri(ApiUrl)
+        };
+        IClient client = new Client(httpClient);
+
+        await client.HealthAsync(); // or whatever endpoint you have
+
+        Assert.Pass("✅ API is reachable via ServiceClient");
+
+        //var response = await _client.GetAsync($"{ApiUrl}/health");
+        //Assert.That(response.IsSuccessStatusCode, $"API not reachable at {ApiUrl}");
+    }
 
     [Test]
     public async Task Pre_Should_Login_Successfully()
