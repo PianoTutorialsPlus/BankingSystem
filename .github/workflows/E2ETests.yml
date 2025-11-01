@@ -93,18 +93,24 @@ jobs:
         Write-Host "Roles in DB:`n$roles"
 
         # Publish Blazor UI
-        dotnet publish BankingSystem.WebUI/BankingSystem.WebUI.csproj -c Release -o publish
+        # dotnet publish BankingSystem.WebUI/BankingSystem.WebUI.csproj -c Release -o publish
 
-        dir ./publish/wwwroot
+        # dir ./publish/wwwroot
 
         # Verify index.html exists
-        if (-not (Test-Path "./publish/wwwroot/index.html")) {
-          Write-Error "Blazor UI publish failed: index.html not found"
-          exit 1
-        }
+        # if (-not (Test-Path "./publish/wwwroot/index.html")) {
+        #   Write-Error "Blazor UI publish failed: index.html not found"
+        #   exit 1
+        # }
 
         # Serve the published WebAssembly UI
-        Start-Process npx -ArgumentList "serve publish/wwwroot -l 7247 --single" -NoNewWindow -PassThru
+        # Start-Process npx -ArgumentList "serve publish/wwwroot -l 7247 --single" -NoNewWindow -PassThru
+
+        # Write-Host "UI stdout: $uiOutLog, stderr: $uiErrLog"
+        $ui = Start-Process dotnet `
+            -ArgumentList "run --project BankingSystem.UI/BankingSystem.UI.csproj --urls=http://localhost:7247" --no-launch-profile" `
+            -NoNewWindow -PassThru
+
 
         # Wait for UI to become ready
         $maxRetries = 30

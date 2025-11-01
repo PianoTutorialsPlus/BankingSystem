@@ -13,8 +13,8 @@ public class LoginTests : PageTest
     {
         await Page.GotoAsync(BaseUrl);
         await Page.ScreenshotAsync(new PageScreenshotOptions { Path = "page.png", FullPage = true });
-        var content = await Page.ContentAsync();
-        Console.WriteLine(content.Substring(0, Math.Min(2000, content.Length)));
+        //var content = await Page.ContentAsync();
+        //Console.WriteLine(content.Substring(0, Math.Min(2000, content.Length)));
 
         var heading = await Page.Locator("h1").TextContentAsync();
         Assert.That(heading, Does.Contain("Welcome to Banking System"));
@@ -40,7 +40,7 @@ public class LoginTests : PageTest
 
         // Wait for redirect to home/dashboard
         await Page.WaitForURLAsync("**/");
-        await Page.ScreenshotAsync(new PageScreenshotOptions { Path = "page.png", FullPage = true });
+        await Page.ScreenshotAsync(new PageScreenshotOptions { Path = "page2.png", FullPage = true });
 
         var heading = string.Empty;
         // Validate we landed on the welcome page
