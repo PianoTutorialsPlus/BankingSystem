@@ -148,4 +148,4 @@ if (app.Environment.IsEnvironment("CI"))
     app.MapGet("/health", () => Results.Ok("Healthy"));
 
     app.Run();
-
+}
