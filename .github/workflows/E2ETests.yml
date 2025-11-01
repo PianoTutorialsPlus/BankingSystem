@@ -79,7 +79,7 @@ jobs:
 
         dir  ./BankingSystem.Api
 
-        $DBPath = "$./BankingSystem.Api/db_bankingSystem.db"
+        $DBPath = "./BankingSystem.Api/db_bankingSystem.db"
         $tables = & sqlite3 $DBPath ".tables"
         Write-Host "Tables in DB: $tables"
 
