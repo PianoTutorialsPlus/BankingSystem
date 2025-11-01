@@ -24,10 +24,15 @@ public class LoginTests : PageTest
 
         await client.HealthAsync(); // or whatever endpoint you have
 
-        Assert.Pass("✅ API is reachable via ServiceClient");
+        var response = await client.LoginAsync(new AuthRequest
+        {
+            Email = "user@localhost.com",
+            Password = "P@ssword1"
+        });
 
         //var response = await _client.GetAsync($"{ApiUrl}/health");
-        //Assert.That(response.IsSuccessStatusCode, $"API not reachable at {ApiUrl}");
+        Assert.That(response.Email == "user@localhost.com", $"API not reachable at {ApiUrl}");
+        Assert.Pass("✅ API is reachable via ServiceClient");
     }
 
     [Test]
