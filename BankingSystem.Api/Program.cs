@@ -1,12 +1,15 @@
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using BankingSystem.Api.Middleware;
-using BankingSystem.Application.Interfaces;
 using BankingSystem.Application.DI;
-using BankingSystem.Persistence.DatabaseContext;
-using BankingSystem.Persistence.Services;
-using BankingSystem.Persistence.DI;
+using BankingSystem.Application.Interfaces;
+using BankingSystem.Identity.DbContext;
 using BankingSystem.Identity.DI;
+using BankingSystem.Identity.Models;
+using BankingSystem.Persistence.DatabaseContext;
+using BankingSystem.Persistence.DI;
+using BankingSystem.Persistence.Services;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -66,6 +69,15 @@ app.UseCors("AllowBlazorClient");
 if (!app.Environment.IsEnvironment("CI"))
 {
     app.UseHttpsRedirection();
+}
+
+if (app.Environment.IsEnvironment("CI"))
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<BankingSystemDbContext>();
+
+    // Ensure DB + seed data exist
+    db.Database.Migrate();
 }
 
 app.UseAuthentication();
