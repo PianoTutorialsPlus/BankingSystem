@@ -122,8 +122,8 @@ if (app.Environment.IsEnvironment("CI"))
             // admin
             RoleId = "f701d759-adf9-47cd-8f22-5b21e9c52ac9",
             UserId = "918043f8-d092-4b9d-be3e-63eae8307e2b"
-        }
-);
+        });
+    }
 
         db.SaveChanges();
     }
@@ -148,4 +148,4 @@ if (app.Environment.IsEnvironment("CI"))
     app.MapGet("/health", () => Results.Ok("Healthy"));
 
     app.Run();
-}
+

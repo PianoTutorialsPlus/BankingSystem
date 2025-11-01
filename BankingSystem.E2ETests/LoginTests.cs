@@ -40,7 +40,7 @@ public class LoginTests : PageTest
 
         // Wait for redirect to home/dashboard
         await Page.WaitForURLAsync("**/");
-        await Page.ScreenshotAsync(new PageScreenshotOptions { Path = "page2.png", FullPage = true });
+        await Page.ScreenshotAsync(new PageScreenshotOptions { Path = "page.png", FullPage = true });
 
         var heading = string.Empty;
         // Validate we landed on the welcome page
