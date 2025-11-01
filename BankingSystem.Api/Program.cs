@@ -57,11 +57,18 @@ using (var scope = app.Services.CreateScope())
 
     // --- Main app database ---
     var appDb = services.GetRequiredService<BankingDbContext>();
-    appDb.Database.Migrate();
+    appDb.Database.EnsureCreated();
 
     // --- Identity database ---
     var identityDb = services.GetRequiredService<BankingSystemDbContext>();
     identityDb.Database.Migrate();
+}
+
+if (app.Environment.IsEnvironment("CI"))
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<BankingSystemDbContext>();
+    db.Database.Migrate(); // creates tables including Identity tables
 }
 
 if (app.Environment.IsDevelopment())

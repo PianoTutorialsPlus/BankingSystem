@@ -35,6 +35,8 @@ jobs:
         echo "ConnectionStrings__HrDatabaseConnectionString=Data Source=$(pwd)/db_bankingSystem.db" >> $GITHUB_ENV
         dotnet tool install --global dotnet-ef
         choco install sqlite -y
+        # Install Node.js static server
+        npm install -g serve
 
     # -------------------------------
     # Install Playwright browsers
@@ -98,9 +100,6 @@ jobs:
           Write-Error "Blazor UI publish failed: index.html not found"
           exit 1
         }
-
-        # Install Node.js static server
-        npm install -g serve
 
         # Serve the published WebAssembly UI
         Start-Process npx -ArgumentList "serve publish/wwwroot -l 7247 --single" -NoNewWindow -PassThru
