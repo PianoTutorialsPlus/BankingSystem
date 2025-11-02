@@ -92,7 +92,7 @@ jobs:
             param(
                 [Parameter(Mandatory = $true)]
                 [string]$Url,
-                [string]$Name = "Service",
+                [string]$Name = "Service"
             )
 
             Write-Host "⏳ Waiting for $Name at $Url ..."
