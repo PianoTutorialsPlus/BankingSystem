@@ -44,13 +44,15 @@ jobs:
       shell: pwsh
       run: ./BankingSystem.E2ETests/bin/Release/net8.0-windows/playwright.ps1 install --with-deps
 
-    - name: Publish and serve Blazor UI
+    # -------------------------------
+    # Start API
+    # -------------------------------
+    - name: Start API
       shell: pwsh
       env:
         ASPNETCORE_ENVIRONMENT: CI
       run: |
         
-        # Start API first
         $apiProc = Start-Process dotnet `
           -ArgumentList "run --project BankingSystem.Api/BankingSystem.Api.csproj --urls=http://localhost:7178 --no-launch-profile" `
           -NoNewWindow -PassThru
@@ -87,11 +89,19 @@ jobs:
         $roles = & sqlite3 $DBPath "SELECT Name FROM AspNetRoles;"
         Write-Host "Roles in DB:`n$roles"
 
+    # -------------------------------
+    # Start UI
+    # -------------------------------
+    - name: Start UI
+      shell: pwsh
+      env:
+        ASPNETCORE_ENVIRONMENT: CI
+      run: |
+
         # Write-Host "UI stdout: $uiOutLog, stderr: $uiErrLog"
         $ui = Start-Process dotnet `
             -ArgumentList "run --project BankingSystem.WebUI/BankingSystem.WebUI.csproj --urls=http://localhost:7247 --no-launch-profile" `
             -NoNewWindow -PassThru
-
 
         # Wait for UI to become ready
         $maxRetries = 30
@@ -116,7 +126,7 @@ jobs:
     - name: Run E2E Tests
       env:
         ASPNETCORE_ENVIRONMENT: CI
-        BASE_URL: http://localhost:7178
+        # BASE_URL: http://localhost:7178
       run: dotnet test BankingSystem.E2ETests/ --configuration Release --no-build --verbosity normal --settings BankingSystem.E2ETests/BankingSystem.E2ETests.runsettings
 
     - name: Upload Playwright artifacts
@@ -127,113 +137,6 @@ jobs:
         path: |
           **/page.png
           **/playwright-report
-
-
-    # -------------------------------
-    # Start API
-    # -------------------------------
-    # - name: Start API
-    #   shell: pwsh
-    #   env:
-    #     ASPNETCORE_ENVIRONMENT: CI
-    #   run: |
-    #     $apiProc = Start-Process dotnet `
-    #       -ArgumentList "run --project BankingSystem.Api/BankingSystem.Api.csproj --urls=http://localhost:7178 --no-launch-profile" `
-    #       -NoNewWindow -PassThru
-    #     Write-Host "Started API process ID: $($apiProc.Id)"
-
-    #     # Wait for API to become ready
-    #     $maxRetries = 30
-    #     $ready = $false
-    #     for ($i = 0; $i -lt $maxRetries; $i++) {
-    #       try {
-    #         $resp = Invoke-WebRequest -Uri "http://localhost:7178/health" -UseBasicParsing -TimeoutSec 5
-    #         if ($resp.StatusCode -eq 200) {
-    #           Write-Host "API ready!"
-    #           $ready = $true
-    #           break
-    #         }
-    #       } catch {
-    #         Start-Sleep -Seconds 2
-    #       }
-    #     }
-    #     if (-not $ready) {
-    #       Write-Error "API never became ready"
-    #       exit 1
-    #     }
-
-    # -------------------------------
-    # Start UI (Blazor WebAssembly)
-    # -------------------------------
-    # - name: Publish and serve Blazor UI
-    #   shell: pwsh
-    #   env:
-    #     ASPNETCORE_ENVIRONMENT: CI
-    #   run: |
-    #     $apiProc = Start-Process dotnet `
-    #       -ArgumentList "run --project BankingSystem.Api/BankingSystem.Api.csproj --urls=http://localhost:7178 --no-launch-profile" `
-    #       -NoNewWindow -PassThru
-    #     Write-Host "Started API process ID: $($apiProc.Id)"
-
-    #     # Wait for API to become ready
-    #     $maxRetries = 30
-    #     $ready = $false
-    #     for ($i = 0; $i -lt $maxRetries; $i++) {
-    #       try {
-    #         $resp = Invoke-WebRequest -Uri "http://localhost:7178/health" -UseBasicParsing -TimeoutSec 5
-    #         if ($resp.StatusCode -eq 200) {
-    #           Write-Host "API ready!"
-    #           $ready = $true
-    #           break
-    #         }
-    #       } catch {
-    #         Start-Sleep -Seconds 2
-    #       }
-    #     }
-    #     if (-not $ready) {
-    #       Write-Error "API never became ready"
-    #       exit 1
-    #     }
-
-    #     dotnet publish BankingSystem.UI/BankingSystem.UI.csproj -c Release -o publish
-
-    #     # Use dotnet serve from published folder
-    #     dotnet tool install --global dotnet-serve
-    #     $env:PATH += ";$env:USERPROFILE\.dotnet\tools"
-    #     Start-Process dotnet -ArgumentList "serve -d publish -p 7247" -NoNewWindow -PassThru
-
-    #     # Wait for UI to become ready
-    #     $maxRetries = 30
-    #     $ready = $false
-    #     for ($i = 0; $i -lt $maxRetries; $i++) {
-    #       try {
-    #         $resp = Invoke-WebRequest -Uri "http://localhost:7247" -UseBasicParsing -TimeoutSec 5
-    #         if ($resp.StatusCode -eq 200) {
-    #           Write-Host "UI ready!"
-    #           $ready = $true
-    #           break
-    #         }
-    #       } catch {
-    #         Start-Sleep -Seconds 2
-    #       }
-    #     }
-    #     if (-not $ready) {
-    #       Write-Error "UI never became ready"
-    #       exit 1
-    #     }
-    #     dotnet test BankingSystem.E2ETests/ --configuration Release --no-build --verbosity normal --settings BankingSystem.E2ETests/BankingSystem.E2ETests.runsettings
-
-    #     # Keep the process reference to prevent it from being garbage collected
-    #     Write-Host "Server process id: $($server.Id)"
-
-    # -------------------------------
-    # Run E2E Tests
-    # -------------------------------
-    # - name: Run E2E Tests
-    #   env:
-    #     BASE_URL: http://localhost:7247
-    #   run: dotnet test BankingSystem.E2ETests/ --configuration Release --no-build --verbosity normal --settings BankingSystem.E2ETests/BankingSystem.E2ETests.runsettings
-
 
 
 # name: E2E Tests
@@ -353,9 +256,6 @@ jobs:
 #     #       }
 #     #     }
 
-#     - name: Install Playwright browsers
-#       shell: pwsh
-#       run: ./BankingSystem.E2ETests/bin/Release/net8.0-windows/playwright.ps1 install --with-deps
 
 
 
