@@ -67,7 +67,7 @@ jobs:
             $ready = $false
             for ($i = 0; $i -lt $maxRetries; $i++) {
               try {
-                $resp = Invoke-WebRequest -Uri "http://localhost:7178/health" -UseBasicParsing -TimeoutSec 5
+                $resp = Invoke-WebRequest -Uri $Url -UseBasicParsing -TimeoutSec 5
                 if ($resp.StatusCode -eq 200) {
                   Write-Host "API ready!"
                   $ready = $true
