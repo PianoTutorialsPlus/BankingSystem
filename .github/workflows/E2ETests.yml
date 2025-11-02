@@ -25,16 +25,10 @@ jobs:
     - name: Build projects
       run: dotnet build --configuration Release --no-restore
 
-    # - name: Setup Node.js
-    #   uses: actions/setup-node@v3
-    #   with:
-    #     node-version: 20.x
 
     - name: Set up environment
       run: |
-        # dotnet tool install --global dotnet-ef
         choco install sqlite -y
-        # npm install -g serve
         dotnet workload install wasm-tools
 
     # -------------------------------
@@ -98,7 +92,6 @@ jobs:
         ASPNETCORE_ENVIRONMENT: CI
       run: |
 
-        # Write-Host "UI stdout: $uiOutLog, stderr: $uiErrLog"
         $ui = Start-Process dotnet `
             -ArgumentList "run --project BankingSystem.WebUI/BankingSystem.WebUI.csproj --urls=http://localhost:7247 --no-launch-profile" `
             -NoNewWindow -PassThru
@@ -120,13 +113,20 @@ jobs:
         }
         if (-not $ready) { Write-Error "UI never became ready"; exit 1 }
 
+        Write-Host "Testing if API is reachable before tests..."
+            try {
+                $resp = Invoke-WebRequest -Uri "http://localhost:7178/health" -UseBasicParsing -TimeoutSec 5
+                Write-Host "✅ API is responding: $($resp.StatusCode)"
+            } catch {
+                Write-Host "❌ API not responding: $($_.Exception.Message)"
+            }
+
         # Run E2E tests
-        dotnet test BankingSystem.E2ETests/ --configuration Release --no-build --verbosity normal --settings BankingSystem.E2ETests/BankingSystem.E2ETests.runsettings
+        # dotnet test BankingSystem.E2ETests/ --configuration Release --no-build --verbosity normal --settings BankingSystem.E2ETests/BankingSystem.E2ETests.runsettings
 
     - name: Run E2E Tests
       env:
         ASPNETCORE_ENVIRONMENT: CI
-        
       run: dotnet test BankingSystem.E2ETests/ --configuration Release --no-build --verbosity normal --settings BankingSystem.E2ETests/BankingSystem.E2ETests.runsettings
 
     - name: Upload Playwright artifacts
