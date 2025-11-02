@@ -77,7 +77,8 @@ jobs:
                 Start-Sleep -Seconds 2
               }
             }
-            if (-not $ready) { Write-Error "API never became ready"; exit 1 }
+            if (-not $ready) { Write-Error "$Name never became ready"; exit 1 }
+          }
 
         $apiProc = Start-Process dotnet `
           -ArgumentList "run --project BankingSystem.Api/BankingSystem.Api.csproj --urls=http://localhost:7178 --no-launch-profile" `
@@ -115,7 +116,7 @@ jobs:
 
         dotnet test BankingSystem.E2ETests/ --configuration Release --no-build --verbosity normal --settings BankingSystem.E2ETests/BankingSystem.E2ETests.runsettings
         
-        }
+        
 
     - name: Upload Playwright artifacts
       if: always()
