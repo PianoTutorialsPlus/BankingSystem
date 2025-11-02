@@ -47,7 +47,7 @@ jobs:
         ASPNETCORE_ENVIRONMENT: CI
       run: |
         
-        $apiProc = Start-Process dotnet `
+        $apiProc = Start-Job dotnet `
           -ArgumentList "run --project BankingSystem.Api/BankingSystem.Api.csproj --urls=http://localhost:7178 --no-launch-profile" `
           -NoNewWindow -PassThru
         Write-Host "Started API process ID: $($apiProc.Id)"
@@ -92,7 +92,7 @@ jobs:
         ASPNETCORE_ENVIRONMENT: CI
       run: |
 
-        $ui = Start-Process dotnet `
+        $ui = Start-Job dotnet `
             -ArgumentList "run --project BankingSystem.WebUI/BankingSystem.WebUI.csproj --urls=http://localhost:7247 --no-launch-profile" `
             -NoNewWindow -PassThru
 
