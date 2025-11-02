@@ -49,7 +49,7 @@ jobs:
         
         $apiProc = Start-Job dotnet `
           -ArgumentList "run --project BankingSystem.Api/BankingSystem.Api.csproj --urls=http://localhost:7178 --no-launch-profile" `
-          -NoNewWindow -PassThru
+          # -NoNewWindow -PassThru
         Write-Host "Started API process ID: $($apiProc.Id)"
 
         # Wait for API to become ready
@@ -94,7 +94,7 @@ jobs:
 
         $ui = Start-Job dotnet `
             -ArgumentList "run --project BankingSystem.WebUI/BankingSystem.WebUI.csproj --urls=http://localhost:7247 --no-launch-profile" `
-            -NoNewWindow -PassThru
+            # -NoNewWindow -PassThru
 
         # Wait for UI to become ready
         $maxRetries = 30
