@@ -11,6 +11,10 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 60
 
+    env:
+        ASPNETCORE_ENVIRONMENT: CI
+
+
     steps:
     - uses: actions/checkout@v5
 
@@ -26,7 +30,7 @@ jobs:
       run: dotnet build --configuration Release --no-restore
 
 
-    - name: Set up environment
+    - name: Set up Environment
       run: |
         choco install sqlite -y
         dotnet workload install wasm-tools
@@ -43,91 +47,73 @@ jobs:
     # -------------------------------
     - name: Start API
       shell: pwsh
-      env:
-        ASPNETCORE_ENVIRONMENT: CI
       run: |
-        
         $apiProc = Start-Process dotnet `
-          -ArgumentList "run --project BankingSystem.Api/BankingSystem.Api.csproj --urls=http://127.0.0.1:7178 --no-launch-profile" `
+          -ArgumentList "run --project BankingSystem.Api/BankingSystem.Api.csproj --urls=http://localhost:7178 --no-launch-profile" `
           -NoNewWindow -PassThru
         Write-Host "Started API process ID: $($apiProc.Id)"
 
-        # Wait for API to become ready
-        $maxRetries = 30
-        $ready = $false
-        for ($i = 0; $i -lt $maxRetries; $i++) {
-          try {
-            $resp = Invoke-WebRequest -Uri "http://127.0.0.1:7178/health" -UseBasicParsing -TimeoutSec 5
-            if ($resp.StatusCode -eq 200) {
-              Write-Host "API ready!"
-              $ready = $true
-              break
-            }
-          } catch {
-            Start-Sleep -Seconds 2
-          }
-        }
-        if (-not $ready) { Write-Error "API never became ready"; exit 1 }
+        Wait-ForService -Url "http://localhost:7178/health" -Name "API"
 
-        dir  ./BankingSystem.Api
+        # Debug
+        # dir  ./BankingSystem.Api
 
-        $DBPath = "./BankingSystem.Api/db_bankingSystem.db"
-        $tables = & sqlite3 $DBPath ".tables"
-        Write-Host "Tables in DB: $tables"
+        # $DBPath = "./BankingSystem.Api/db_bankingSystem.db"
+        # $tables = & sqlite3 $DBPath ".tables"
+        # Write-Host "Tables in DB: $tables"
 
-        # List all users
-        $users = & sqlite3 $DBPath "SELECT UserName, Email FROM AspNetUsers;"
-        Write-Host "Users in DB:`n$users"
+        # $users = & sqlite3 $DBPath "SELECT UserName, Email FROM AspNetUsers;"
+        # Write-Host "Users in DB:`n$users"
 
-        # List roles
-        $roles = & sqlite3 $DBPath "SELECT Name FROM AspNetRoles;"
-        Write-Host "Roles in DB:`n$roles"
+        # $roles = & sqlite3 $DBPath "SELECT Name FROM AspNetRoles;"
+        # Write-Host "Roles in DB:`n$roles"
 
-    # -------------------------------
-    # Start UI
-    # -------------------------------
-    - name: Start UI
-      shell: pwsh
-      env:
-        ASPNETCORE_ENVIRONMENT: CI
-      run: |
+        # -------------------------------
+        # Start UI
+        # -------------------------------
 
         $ui = Start-Process dotnet `
-            -ArgumentList "run --project BankingSystem.WebUI/BankingSystem.WebUI.csproj --urls=http://127.0.0.1:7247 --no-launch-profile" `
+            -ArgumentList "run --project BankingSystem.WebUI/BankingSystem.WebUI.csproj --urls=http://localhost:7247 --no-launch-profile" `
             -NoNewWindow -PassThru
 
-        # Wait for UI to become ready
-        $maxRetries = 30
-        $ready = $false
-        for ($i = 0; $i -lt $maxRetries; $i++) {
-          try {
-            $resp = Invoke-WebRequest -Uri "http://127.0.0.1:7247" -UseBasicParsing -TimeoutSec 5
-            if ($resp.StatusCode -eq 200) {
-              Write-Host "UI ready!"
-              $ready = $true
-              break
-            }
-          } catch {
-            Start-Sleep -Seconds 2
-          }
-        }
-        if (-not $ready) { Write-Error "UI never became ready"; exit 1 }
+        Wait-ForService -Url "http://localhost:7247" -Name "UI"
 
-        Write-Host "Testing if API is reachable before tests..."
-            try {
-                $resp = Invoke-WebRequest -Uri "http://127.0.0.1:7178/health" -UseBasicParsing -TimeoutSec 5
-                Write-Host "✅ API is responding: $($resp.StatusCode)"
-            } catch {
-                Write-Host "❌ API not responding: $($_.Exception.Message)"
-            }
-
+        # -------------------------------
         # Run E2E tests
-        # dotnet test BankingSystem.E2ETests/ --configuration Release --no-build --verbosity normal --settings BankingSystem.E2ETests/BankingSystem.E2ETests.runsettings
+        # -------------------------------
 
-    - name: Run E2E Tests
-      env:
-        ASPNETCORE_ENVIRONMENT: CI
-      run: dotnet test BankingSystem.E2ETests/ --configuration Release --no-build --verbosity normal --settings BankingSystem.E2ETests/BankingSystem.E2ETests.runsettings
+        dotnet test BankingSystem.E2ETests/ --configuration Release --no-build --verbosity normal --settings BankingSystem.E2ETests/BankingSystem.E2ETests.runsettings
+
+        # -------------------------------
+        # Waiting function
+        # -------------------------------
+
+        function Wait-ForService {
+            param(
+                [Parameter(Mandatory = $true)]
+                [string]$Url,
+                [string]$Name = "Service",
+            )
+
+            Write-Host "⏳ Waiting for $Name at $Url ..."
+            $ready = $false
+
+            $maxRetries = 30
+            $ready = $false
+            for ($i = 0; $i -lt $maxRetries; $i++) {
+              try {
+                $resp = Invoke-WebRequest -Uri "http://localhost:7178/health" -UseBasicParsing -TimeoutSec 5
+                if ($resp.StatusCode -eq 200) {
+                  Write-Host "API ready!"
+                  $ready = $true
+                  break
+                }
+              } catch {
+                Start-Sleep -Seconds 2
+              }
+            }
+            if (-not $ready) { Write-Error "API never became ready"; exit 1 }
+        }
 
     - name: Upload Playwright artifacts
       if: always()
@@ -138,123 +124,6 @@ jobs:
           **/page.png
           **/playwright-report
 
-
-# name: E2E Tests
-
-# on:
-#   push:
-#     branches: [ main, master ]
-#   pull_request:
-#     branches: [ main, master ]
-
-# jobs:
-#   e2e-tests:
-#     runs-on: windows-latest
-#     timeout-minutes: 60
-
-#     steps:
-#     - uses: actions/checkout@v5
-
-#     - name: Setup .NET
-#       uses: actions/setup-dotnet@v5
-#       with:
-#         dotnet-version: 8.0.x
-
-#     - name: Restore dependencies
-#       run: dotnet restore
-
-#     - name: Build all projects
-#       run: dotnet build --configuration Release --no-restore
-
-
-#       # - name: Start API and UI together
-#     - name: Publish Blazor WebAssembly
-#       run: dotnet publish BankingSystem.UI/BankingSystem.UI.csproj -c Release -o BankingSystem.Api/wwwroot
-
-#     - name: List published wwwroot
-#       run: dir BankingSystem.Api/wwwroot
-
-#     - name: Start API and wait
-#       shell: pwsh
-#       env:
-#         ASPNETCORE_ENVIRONMENT: CI
-#       run: |
-#         $proc = Start-Process dotnet `
-#           -ArgumentList "run --project BankingSystem.Api/BankingSystem.Api.csproj --urls=http://localhost:7178 --no-launch-profile" `
-#           -NoNewWindow -PassThru
-#         Write-Host "Waiting for API to be ready..."
-#         $maxRetries = 60
-#         $ready = $false
-#         for ($i=0; $i -lt $maxRetries; $i++) {
-#           try {
-#             $resp = Invoke-WebRequest -Uri "http://localhost:7178/health" -UseBasicParsing -TimeoutSec 5
-#             Write-Host "Response status: $($resp.StatusCode)"
-#             if ($resp.StatusCode -eq 200) {
-#               Write-Host "✅ API ready!"
-#               $ready = $true
-#               break
-#             }
-#           } catch {
-#             Write-Host "Attempt $i failed: $($_.Exception.Message)"
-#             Start-Sleep -Seconds 2
-#           }
-#         }
-#         if (-not $ready) { Write-Error "API never became ready"; exit 1 }
-
-#     # - name: Start UI with logging
-#     #   shell: pwsh
-#     #   run: |
-#     #     Write-Host "UI stdout: $uiOutLog, stderr: $uiErrLog"
-#     #     $ui = Start-Process dotnet `
-#     #         -ArgumentList "run --project BankingSystem.UI/BankingSystem.UI.csproj --urls=http://localhost:7247" --no-launch-profile" `
-#     #         -NoNewWindow -PassThru
-#     #     Write-Host "Waiting for API to be ready..."
-#     #     $maxRetries = 60
-#     #     $ready = $false
-#     #     for ($i=0; $i -lt $maxRetries; $i++) {
-#     #       try {
-#     #         $resp = Invoke-WebRequest -Uri "http://localhost:7247" -UseBasicParsing -TimeoutSec 5
-#     #         Write-Host "Response status: $($resp.StatusCode)"
-#     #         if ($resp.StatusCode -eq 200) {
-#     #           Write-Host "✅ API ready!"
-#     #           $ready = $true
-#     #           break
-#     #         }
-#     #       } catch {
-#     #         Write-Host "Attempt $i failed: $($_.Exception.Message)"
-#     #         Start-Sleep -Seconds 2
-#     #       }
-#     #     }
-#     #     if (-not $ready) { Write-Error "API never became ready"; exit 1 }
-
-#     # - name: Wait for API and UI to start
-#     #   shell: pwsh
-#     #   run: |
-#     #     $urls = @(
-#     #       "http://localhost:7178/health", # API
-#     #       "http://localhost:7247/"   # UI
-#     #     )
-#     #     foreach ($url in $urls) {
-#     #       Write-Host "Waiting for $url..."
-#     #       $maxRetries = 30
-#     #       $ready = $false
-#     #       for ($i=0; $i -lt $maxRetries; $i++) {
-#     #         try {
-#     #           $response = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 5
-#     #           if ($response.StatusCode -eq 200) {
-#     #             Write-Host "$url is ready!"
-#     #             $ready = $true
-#     #             break
-#     #           }
-#     #         } catch {
-#     #           Start-Sleep -Seconds 2
-#     #         }
-#     #       }
-#     #       if (-not $ready) {
-#     #         Write-Error "Timeout waiting for $url"
-#     #         exit 1
-#     #       }
-#     #     }
 
 
 
